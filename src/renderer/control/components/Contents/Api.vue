@@ -16,8 +16,8 @@
         >
           <template #default>
             <div style="margin-top: 8px">
-              <div>WebSocket: <code>ws://localhost:{{ appStore.config.api.wsPort }}</code></div>
-              <div>HTTP: <code>http://localhost:{{ appStore.config.api.httpPort }}</code></div>
+              <div>WebSocket: <code>ws://localhost:{{ wsPort }}</code></div>
+              <div>HTTP: <code>http://localhost:{{ httpPort }}</code></div>
             </div>
           </template>
         </el-alert>
@@ -41,7 +41,7 @@
 
         <el-form-item :label="$t('api.enableApi')">
           <el-switch
-            v-model="appStore.config.api.enabled"
+            v-model="apiEnabled"
             @change="handleConfigChange"
           ></el-switch>
           <el-text type="info" size="small" style="margin-top: 4px">
@@ -51,7 +51,7 @@
 
         <el-form-item :label="$t('api.wsPort')">
           <el-input-number
-            v-model="appStore.config.api.wsPort"
+            v-model="wsPort"
             :min="1024"
             :max="65535"
             @change="handleConfigChange"
@@ -67,7 +67,7 @@
 
         <el-form-item :label="$t('api.httpPort')">
           <el-input-number
-            v-model="appStore.config.api.httpPort"
+            v-model="httpPort"
             :min="1024"
             :max="65535"
             @change="handleConfigChange"
@@ -196,11 +196,26 @@ import { useAppStore } from "@control/store/app";
 const { t } = useTranslation();
 const appStore = useAppStore();
 
+// Use local refs with default values to prevent undefined errors
+const apiEnabled = ref(false);
+const wsPort = ref(8765);
+const httpPort = ref(8766);
+
 const apiStatus = reactive({
   running: false,
 });
 
 const testing = ref(false);
+
+// Initialize values from config when available
+onMounted(() => {
+  if (appStore.config.api) {
+    apiEnabled.value = appStore.config.api.enabled ?? true;
+    wsPort.value = appStore.config.api.wsPort ?? 8765;
+    httpPort.value = appStore.config.api.httpPort ?? 8766;
+  }
+  checkApiStatus();
+});
 
 const modelControlEndpoints = [
   { action: "setParameter", description: t("api.endpoints.setParameter") },
@@ -226,7 +241,7 @@ const windowEndpoints = [
 ];
 
 const curlExample = computed(() => {
-  return `curl -X POST http://localhost:${appStore.config.api.httpPort} \\
+  return `curl -X POST http://localhost:${httpPort.value} \\
   -H "Content-Type: application/json" \\
   -d '{"action":"setParameter","data":{"parameterId":"ParamMouthOpenY","value":0.8}}'`;
 });
@@ -237,7 +252,7 @@ import websockets
 import json
 
 async def control_model():
-    async with websockets.connect("ws://localhost:${appStore.config.api.wsPort}") as ws:
+    async with websockets.connect("ws://localhost:${wsPort.value}") as ws:
         await ws.recv()  # Connection message
         
         command = {
@@ -257,7 +272,7 @@ asyncio.run(control_model())`;
 const jsExample = computed(() => {
   return `const WebSocket = require('ws');
 
-const ws = new WebSocket('ws://localhost:${appStore.config.api.wsPort}');
+const ws = new WebSocket('ws://localhost:${wsPort.value}');
 
 ws.on('open', () => {
   const command = {
@@ -275,13 +290,9 @@ ws.on('message', (data) => {
 });`;
 });
 
-onMounted(() => {
-  checkApiStatus();
-});
-
 async function checkApiStatus() {
   try {
-    const response = await fetch(`http://localhost:${appStore.config.api.httpPort}/health`);
+    const response = await fetch(`http://localhost:${httpPort.value}/health`);
     apiStatus.running = response.ok;
   } catch (error) {
     apiStatus.running = false;
@@ -289,8 +300,17 @@ async function checkApiStatus() {
 }
 
 function handleConfigChange() {
-  // Save the entire config object
-  const currentConfig = window.nodeAPI.config.value();
+  // Ensure config.api exists
+  if (!appStore.config.api) {
+    appStore.config.api = {};
+  }
+  
+  // Update the store
+  appStore.config.api.enabled = apiEnabled.value;
+  appStore.config.api.wsPort = wsPort.value;
+  appStore.config.api.httpPort = httpPort.value;
+  
+  // Save to disk
   window.nodeAPI.config.write('api', appStore.config.api);
   
   if (!apiStatus.running) {
@@ -301,7 +321,7 @@ function handleConfigChange() {
 async function testConnection() {
   testing.value = true;
   try {
-    const response = await fetch(`http://localhost:${appStore.config.api.httpPort}/health`, {
+    const response = await fetch(`http://localhost:${httpPort.value}/health`, {
       method: 'GET',
     });
     
@@ -322,8 +342,8 @@ async function testConnection() {
 
 function copyEndpoint(type) {
   const url = type === 'ws' 
-    ? `ws://localhost:${appStore.config.api.wsPort}`
-    : `http://localhost:${appStore.config.api.httpPort}`;
+    ? `ws://localhost:${wsPort.value}`
+    : `http://localhost:${httpPort.value}`;
   
   navigator.clipboard.writeText(url);
   ElMessage.success(t("api.copiedToClipboard"));
