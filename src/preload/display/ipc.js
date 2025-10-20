@@ -54,3 +54,11 @@ export function throwError(message) {
 export function handleScreenshot(callback) {
   ipcRenderer.on("control2display:screenshot", callback);
 }
+
+export function handleEnableConsoleForwarding(callback) {
+  ipcRenderer.on("control2display:enable-console-forwarding", callback);
+}
+
+export function sendConsoleLog(type, message, time) {
+  ipcRenderer.send("display2control:console-log", { type, message, time });
+}

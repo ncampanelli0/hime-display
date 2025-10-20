@@ -178,10 +178,12 @@ export class Application extends EventEmitter {
       ["display2control:send-to-model-control", "control"],
       ["display2control:send-display-window-state", "control"],
       ["display2control:error", "control"],
+      ["display2control:console-log", "control"],
       ["control2display:load-model", "display"],
       ["control2display:send-to-model-manager", "display"],
       ["control2display:query-display-window-state", "display"],
       ["control2display:screenshot", "display"],
+      ["control2display:enable-console-forwarding", "display"],
     ];
     routes.forEach(([channel, targetWindowKey]) => {
       ipcMain.on(channel, (event, ...args) => {

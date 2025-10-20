@@ -1,130 +1,237 @@
 <template>
   <div class="console-container">
-    <div class="console-header">
-      <el-button-group>
-        <el-button size="small" @click="clearLogs">Clear</el-button>
-        <el-button size="small" @click="toggleAutoscroll">
-          Auto-scroll: {{ autoscroll ? 'ON' : 'OFF' }}
-        </el-button>
-      </el-button-group>
-      <el-checkbox-group v-model="logLevels" size="small">
-        <el-checkbox-button label="log">Log</el-checkbox-button>
-        <el-checkbox-button label="info">Info</el-checkbox-button>
-        <el-checkbox-button label="warn">Warn</el-checkbox-button>
-        <el-checkbox-button label="error">Error</el-checkbox-button>
-      </el-checkbox-group>
-    </div>
-    <div class="console-content" ref="consoleContent">
-      <div
-        v-for="(log, index) in filteredLogs"
-        :key="index"
-        :class="['log-entry', `log-${log.type}`]"
-      >
-        <span class="log-time">{{ log.time }}</span>
-        <span class="log-type">[{{ log.type.toUpperCase() }}]</span>
-        <span class="log-message">{{ log.message }}</span>
-      </div>
-    </div>
+    <el-tabs v-model="activeTab" type="card" class="console-tabs">
+      <el-tab-pane label="Control Panel" name="control">
+        <div class="console-header">
+          <el-button-group>
+            <el-button size="small" @click="clearLogs('control')">Clear</el-button>
+            <el-button size="small" @click="toggleAutoscroll">
+              Auto-scroll: {{ autoscroll ? 'ON' : 'OFF' }}
+            </el-button>
+          </el-button-group>
+          <el-checkbox-group v-model="logLevels" size="small">
+            <el-checkbox-button label="log">Log</el-checkbox-button>
+            <el-checkbox-button label="info">Info</el-checkbox-button>
+            <el-checkbox-button label="warn">Warn</el-checkbox-button>
+            <el-checkbox-button label="error">Error</el-checkbox-button>
+          </el-checkbox-group>
+        </div>
+        <div class="console-content" ref="controlConsoleContent">
+          <div
+            v-for="(log, index) in filteredControlLogs"
+            :key="index"
+            :class="['log-entry', `log-${log.type}`]"
+          >
+            <span class="log-time">{{ log.time }}</span>
+            <span class="log-type">[{{ log.type.toUpperCase() }}]</span>
+            <span class="log-message">{{ log.message }}</span>
+          </div>
+        </div>
+      </el-tab-pane>
+      
+      <el-tab-pane label="Display Window" name="display">
+        <div class="console-header">
+          <el-button-group>
+            <el-button size="small" @click="clearLogs('display')">Clear</el-button>
+            <el-button size="small" @click="toggleAutoscroll">
+              Auto-scroll: {{ autoscroll ? 'ON' : 'OFF' }}
+            </el-button>
+          </el-button-group>
+          <el-checkbox-group v-model="logLevels" size="small">
+            <el-checkbox-button label="log">Log</el-checkbox-button>
+            <el-checkbox-button label="info">Info</el-checkbox-button>
+            <el-checkbox-button label="warn">Warn</el-checkbox-button>
+            <el-checkbox-button label="error">Error</el-checkbox-button>
+          </el-checkbox-group>
+        </div>
+        <div class="console-content" ref="displayConsoleContent">
+          <div
+            v-for="(log, index) in filteredDisplayLogs"
+            :key="index"
+            :class="['log-entry', `log-${log.type}`]"
+          >
+            <span class="log-time">{{ log.time }}</span>
+            <span class="log-type">[{{ log.type.toUpperCase() }}]</span>
+            <span class="log-message">{{ log.message }}</span>
+          </div>
+        </div>
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, nextTick, onMounted, onBeforeUnmount, watch } from 'vue';
+import { useAppStore } from '@control/store/app';
 
-const logs = ref([]);
+const appStore = useAppStore();
+const ipcAPI = window.nodeAPI.ipc;
+
+// Separate global stores for control and display logs
+if (!window.__controlConsoleLogs) {
+  window.__controlConsoleLogs = [];
+}
+
+if (!window.__displayConsoleLogs) {
+  window.__displayConsoleLogs = [];
+}
+
+if (!window.__consoleOriginal) {
+  window.__consoleOriginal = {
+    log: console.log,
+    info: console.info,
+    warn: console.warn,
+    error: console.error
+  };
+
+  // Override console methods globally (only once) - these are for Control Panel
+  const addToGlobalLogs = (type, args) => {
+    const message = args
+      .map(arg => {
+        if (typeof arg === 'object') {
+          try {
+            return JSON.stringify(arg, null, 2);
+          } catch {
+            return String(arg);
+          }
+        }
+        return String(arg);
+      })
+      .join(' ');
+
+    const time = new Date().toLocaleTimeString();
+    
+    window.__controlConsoleLogs.push({
+      type,
+      message,
+      time,
+      timestamp: Date.now()
+    });
+
+    // Limit logs to 1000 entries
+    if (window.__controlConsoleLogs.length > 1000) {
+      window.__controlConsoleLogs.shift();
+    }
+  };
+
+  console.log = (...args) => {
+    window.__consoleOriginal.log(...args);
+    addToGlobalLogs('log', args);
+  };
+
+  console.info = (...args) => {
+    window.__consoleOriginal.info(...args);
+    addToGlobalLogs('info', args);
+  };
+
+  console.warn = (...args) => {
+    window.__consoleOriginal.warn(...args);
+    addToGlobalLogs('warn', args);
+  };
+
+  console.error = (...args) => {
+    window.__consoleOriginal.error(...args);
+    addToGlobalLogs('error', args);
+  };
+}
+
+const activeTab = ref('control');
+const controlLogs = ref([]);
+const displayLogs = ref([]);
 const logLevels = ref(['log', 'info', 'warn', 'error']);
 const autoscroll = ref(true);
-const consoleContent = ref(null);
+const controlConsoleContent = ref(null);
+const displayConsoleContent = ref(null);
+let updateInterval = null;
 
-// Store original console methods
-const originalConsole = {
-  log: console.log,
-  info: console.info,
-  warn: console.warn,
-  error: console.error
-};
-
-const addLog = (type, args) => {
-  const message = args
-    .map(arg => {
-      if (typeof arg === 'object') {
-        try {
-          return JSON.stringify(arg, null, 2);
-        } catch {
-          return String(arg);
-        }
-      }
-      return String(arg);
-    })
-    .join(' ');
-
-  const time = new Date().toLocaleTimeString();
-  
-  logs.value.push({
-    type,
-    message,
-    time,
-    timestamp: Date.now()
-  });
-
-  // Limit logs to 1000 entries
-  if (logs.value.length > 1000) {
-    logs.value.shift();
-  }
-
-  if (autoscroll.value) {
-    nextTick(() => {
-      if (consoleContent.value) {
-        consoleContent.value.scrollTop = consoleContent.value.scrollHeight;
-      }
-    });
-  }
-};
-
-const filteredLogs = computed(() => {
-  return logs.value.filter(log => logLevels.value.includes(log.type));
+const filteredControlLogs = computed(() => {
+  return controlLogs.value.filter(log => logLevels.value.includes(log.type));
 });
 
-const clearLogs = () => {
-  logs.value = [];
+const filteredDisplayLogs = computed(() => {
+  return displayLogs.value.filter(log => logLevels.value.includes(log.type));
+});
+
+// Sync the reactive arrays with the global arrays
+const syncLogs = () => {
+  // Only update if lengths differ to avoid unnecessary reactivity
+  if (controlLogs.value.length !== window.__controlConsoleLogs.length) {
+    controlLogs.value = [...window.__controlConsoleLogs];
+  }
+  if (displayLogs.value.length !== window.__displayConsoleLogs.length) {
+    displayLogs.value = [...window.__displayConsoleLogs];
+  }
+};
+
+const clearLogs = (which) => {
+  if (which === 'control') {
+    window.__controlConsoleLogs.length = 0;
+    controlLogs.value = [];
+  } else if (which === 'display') {
+    window.__displayConsoleLogs.length = 0;
+    displayLogs.value = [];
+  }
 };
 
 const toggleAutoscroll = () => {
   autoscroll.value = !autoscroll.value;
 };
 
-// Override console methods
+const scrollToBottom = () => {
+  if (autoscroll.value) {
+    nextTick(() => {
+      if (activeTab.value === 'control' && controlConsoleContent.value) {
+        controlConsoleContent.value.scrollTop = controlConsoleContent.value.scrollHeight;
+      } else if (activeTab.value === 'display' && displayConsoleContent.value) {
+        displayConsoleContent.value.scrollTop = displayConsoleContent.value.scrollHeight;
+      }
+    });
+  }
+};
+
+// Watch for new logs and auto-scroll
+watch(() => controlLogs.value.length, scrollToBottom);
+watch(() => displayLogs.value.length, scrollToBottom);
+watch(activeTab, scrollToBottom);
+
+// Listen for display window console messages
 onMounted(() => {
-  console.log = (...args) => {
-    originalConsole.log(...args);
-    addLog('log', args);
-  };
+  // Poll the global arrays for changes every 100ms
+  updateInterval = setInterval(syncLogs, 100);
+  // Listen for console messages from display window
+  ipcAPI.handleDisplayConsoleLog((event, { type, message, time }) => {
+    window.__displayConsoleLogs.push({
+      type,
+      message,
+      time,
+      timestamp: Date.now()
+    });
 
-  console.info = (...args) => {
-    originalConsole.info(...args);
-    addLog('info', args);
-  };
+    // Limit logs to 1000 entries
+    if (window.__displayConsoleLogs.length > 1000) {
+      window.__displayConsoleLogs.shift();
+    }
+  });
 
-  console.warn = (...args) => {
-    originalConsole.warn(...args);
-    addLog('warn', args);
-  };
+  // Request display window to start sending console messages
+  // Do this after setting up the listener
+  if (appStore.displayWindowId !== -1) {
+    ipcAPI.enableDisplayConsoleForwarding();
+  }
 
-  console.error = (...args) => {
-    originalConsole.error(...args);
-    addLog('error', args);
-  };
+  // Test logs
+  console.log('Console component mounted - this is a test log');
+  console.info('This is an info message');
+  console.warn('This is a warning message');
+  console.error('This is an error message');
 
-  // Add initial message
-  console.info('Console logging started');
+  scrollToBottom();
 });
 
-// Restore original console methods
 onBeforeUnmount(() => {
-  console.log = originalConsole.log;
-  console.info = originalConsole.info;
-  console.warn = originalConsole.warn;
-  console.error = originalConsole.error;
+  if (updateInterval) {
+    clearInterval(updateInterval);
+  }
 });
 </script>
 
@@ -134,6 +241,23 @@ onBeforeUnmount(() => {
   flex-direction: column;
   height: 100%;
   padding: 12px;
+}
+
+.console-tabs {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  :deep(.el-tabs__content) {
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  :deep(.el-tab-pane) {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 .console-header {

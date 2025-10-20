@@ -54,3 +54,11 @@ export function queryDisplayWindowState() {
 export function screenshot() {
   ipcRenderer.send("control2display:screenshot");
 }
+
+export function enableDisplayConsoleForwarding() {
+  ipcRenderer.send("control2display:enable-console-forwarding");
+}
+
+export function handleDisplayConsoleLog(callback) {
+  ipcRenderer.on("display2control:console-log", callback);
+}
