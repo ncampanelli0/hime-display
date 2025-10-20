@@ -6,6 +6,7 @@ import general from "./general";
 import display from "./display";
 import model from "./model";
 import source from "./source";
+import api from "./api";
 export default {
   menu,
   control,
@@ -15,4 +16,5 @@ export default {
   display,
   model,
   source,
+  api,
 };

@@ -32,4 +32,9 @@ export const defaultConfig = {
     // "dynamic-params-sync": true,
     // "params-sync-frequency": "system",
   },
+  api: {
+    enabled: true,
+    wsPort: 8765,
+    httpPort: 8766,
+  },
 };

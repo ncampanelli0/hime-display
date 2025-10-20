@@ -2,6 +2,8 @@ import { EventEmitter } from "events";
 import { WindowManager } from "./ui/WindowManager";
 import { ThemeManager } from "./ui/ThemeManager";
 import { TrayManager } from "./ui/TrayManager";
+import { ApiServer } from "./api/ApiServer";
+import { CommandHandler } from "./api/CommandHandler";
 import fs from "fs";
 import { Buffer } from "buffer";
 import low from "lowdb";
@@ -29,6 +31,7 @@ export class Application extends EventEmitter {
     this.initWindowManager();
     this.initThemeManager();
     this.initTrayManager();
+    this.initApiServer();
     this.handleIpcMessages();
   }
   startApp() {
@@ -89,6 +92,39 @@ export class Application extends EventEmitter {
       // 使用before-quit事件来处理应用无法正确退出的问题，直接上exit实在是有点暴力
       app.quit();
     });
+  }
+  initApiServer() {
+    // Read API config from config database
+    const apiConfig = this.configDB.get("api").value() || {
+      enabled: true,
+      wsPort: 8765,
+      httpPort: 8766,
+    };
+
+    this.apiServer = new ApiServer(apiConfig);
+    this.commandHandler = new CommandHandler(this);
+
+    // Handle incoming API commands
+    this.apiServer.on("api-command", (command) => {
+      try {
+        const result = this.commandHandler.handle(command);
+        // Broadcast result to all WebSocket clients
+        this.apiServer.broadcast({
+          type: "command-result",
+          result,
+          timestamp: Date.now(),
+        });
+      } catch (error) {
+        this.apiServer.broadcast({
+          type: "error",
+          message: error.message,
+          timestamp: Date.now(),
+        });
+      }
+    });
+
+    // Start the API server
+    this.apiServer.start();
   }
   handleIpcMessages() {
     // 向子进程提供数据库存储目录
@@ -201,5 +237,10 @@ export class Application extends EventEmitter {
       return true;
     }
   }
-  quitApp() {}
+  quitApp() {
+    // Stop API server when quitting
+    if (this.apiServer) {
+      this.apiServer.stop();
+    }
+  }
 }

@@ -1,0 +1,11 @@
+{
+  "name": "hime-display-examples",
+  "version": "1.0.0",
+  "description": "Example clients for controlling Hime Display",
+  "scripts": {
+    "demo": "node node_client.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

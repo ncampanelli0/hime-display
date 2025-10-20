@@ -12,6 +12,15 @@ English | [简体中文](./README-CN.md) | [日本語](./README-JP.md)
 
 Hime Display aims to create an open-source, cross-platform, universal desktop model presenter.
 
+## ✨ NEW: API for AI Integration
+
+Control your Live2D models programmatically via WebSocket/HTTP! Perfect for creating AI VTuber systems like Neuro-sama.
+
+- **[Quick Start Guide](./docs/API_QUICKSTART.md)** - Get started in 5 minutes
+- **[Full API Documentation](./docs/API.md)** - Complete reference
+- **[Python & Node.js Examples](./examples/)** - Ready-to-use client implementations
+- **[MCP Server Example](./examples/mcp_server/)** - Model Context Protocol integration
+
 ## Preview
 
 ### Control Panel

@@ -21,6 +21,7 @@ import HimeDisplay from "@control/components/Contents/Display.vue";
 import HimeControl from "@control/components/Contents/Control/index.vue";
 import HimeModel from "@control/components/Contents/Model.vue";
 import HimeSource from "@control/components/Contents/Source.vue";
+import HimeApi from "@control/components/Contents/Api.vue";
 import HimeConsole from "@control/components/Contents/Console.vue";
 import HimeAbout from "@control/components/Contents/About.vue";
 import { computed } from "vue";
@@ -35,6 +36,7 @@ const contentComponents = {
   HimeControl,
   HimeModel,
   HimeSource,
+  HimeApi,
   HimeConsole,
   HimeAbout,
 };
