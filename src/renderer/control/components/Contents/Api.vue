@@ -231,100 +231,417 @@
           {{ $t("api.availableEndpoints") }}
         </hime-title-with-divider>
 
-        <el-collapse accordion>
-          <el-collapse-item name="1">
+        <el-alert type="info" :closable="false" style="margin-bottom: 16px">
+          <template #default>
+            <strong>💡 {{ $t("api.endpointsNote.title") }}</strong><br/>
+            {{ $t("api.endpointsNote.desc") }}
+          </template>
+        </el-alert>
+
+        <el-collapse accordion v-model="activeEndpoint">
+          <!-- Model Control -->
+          <el-collapse-item name="setParameter">
             <template #title>
               <div class="collapse-title">
-                <el-icon><Setting /></el-icon>
-                <span>{{ $t("api.modelControl") }}</span>
-                <el-tag size="small" style="margin-left: auto">4 {{ $t("api.endpoints.count") }}</el-tag>
+                <code class="endpoint-name">setParameter</code>
+                <el-tag size="small" style="margin-left: auto">{{ $t("api.categories.modelControl") }}</el-tag>
               </div>
             </template>
-            <div class="endpoint-list">
-              <div class="endpoint-item" v-for="endpoint in modelControlEndpoints" :key="endpoint.action">
-                <div class="endpoint-header">
-                  <code class="endpoint-name">{{ endpoint.action }}</code>
-                  <el-button size="small" text @click="copyCode(getEndpointExample(endpoint.action))">
-                    <el-icon><CopyDocument /></el-icon>
+            <div class="endpoint-detail">
+              <p class="endpoint-desc">{{ $t("api.endpoints.setParameter.desc") }}</p>
+              
+              <h4>{{ $t("api.parameters") }}</h4>
+              <el-table :data="setParameterParams" border size="small" style="margin-bottom: 16px">
+                <el-table-column prop="name" :label="$t('api.paramName')" width="140">
+                  <template #default="scope">
+                    <code>{{ scope.row.name }}</code>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="type" :label="$t('api.paramType')" width="100" />
+                <el-table-column prop="required" :label="$t('api.paramRequired')" width="80">
+                  <template #default="scope">
+                    <el-tag :type="scope.row.required ? 'danger' : 'info'" size="small">
+                      {{ scope.row.required ? $t('api.yes') : $t('api.no') }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" :label="$t('api.paramDesc')" />
+              </el-table>
+
+              <h4>{{ $t("api.example") }}</h4>
+              <el-tabs type="card">
+                <el-tab-pane label="curl">
+                  <pre class="code-block-small">{{ getSetParameterCurlExample() }}</pre>
+                  <el-button size="small" @click="copyCode(getSetParameterCurlExample())">
+                    <el-icon><CopyDocument /></el-icon> {{ $t("api.copyCode") }}
                   </el-button>
-                </div>
-                <el-text type="info" size="small">{{ endpoint.description }}</el-text>
-                <div v-if="endpoint.example" class="endpoint-example">
-                  <pre class="code-block-small">{{ endpoint.example }}</pre>
+                </el-tab-pane>
+                <el-tab-pane label="Python">
+                  <pre class="code-block-small">{{ getSetParameterPythonExample() }}</pre>
+                  <el-button size="small" @click="copyCode(getSetParameterPythonExample())">
+                    <el-icon><CopyDocument /></el-icon> {{ $t("api.copyCode") }}
+                  </el-button>
+                </el-tab-pane>
+                <el-tab-pane label="JavaScript">
+                  <pre class="code-block-small">{{ getSetParameterJSExample() }}</pre>
+                  <el-button size="small" @click="copyCode(getSetParameterJSExample())">
+                    <el-icon><CopyDocument /></el-icon> {{ $t("api.copyCode") }}
+                  </el-button>
+                </el-tab-pane>
+              </el-tabs>
+
+              <h4 style="margin-top: 16px">{{ $t("api.commonParameters") }}</h4>
+              <div class="parameter-grid">
+                <div class="parameter-card" v-for="param in commonLive2DParameters" :key="param.id">
+                  <code class="param-id">{{ param.id }}</code>
+                  <p class="param-desc">{{ param.description }}</p>
+                  <span class="param-range">{{ $t("api.range") }}: {{ param.range }}</span>
                 </div>
               </div>
             </div>
           </el-collapse-item>
 
-          <el-collapse-item name="2">
+          <el-collapse-item name="setParameters">
             <template #title>
               <div class="collapse-title">
-                <el-icon><VideoPlay /></el-icon>
-                <span>{{ $t("api.animations") }}</span>
-                <el-tag size="small" style="margin-left: auto">2 {{ $t("api.endpoints.count") }}</el-tag>
+                <code class="endpoint-name">setParameters</code>
+                <el-tag size="small" style="margin-left: auto">{{ $t("api.categories.modelControl") }}</el-tag>
               </div>
             </template>
-            <div class="endpoint-list">
-              <div class="endpoint-item" v-for="endpoint in animationEndpoints" :key="endpoint.action">
-                <div class="endpoint-header">
-                  <code class="endpoint-name">{{ endpoint.action }}</code>
-                  <el-button size="small" text @click="copyCode(getEndpointExample(endpoint.action))">
-                    <el-icon><CopyDocument /></el-icon>
-                  </el-button>
-                </div>
-                <el-text type="info" size="small">{{ endpoint.description }}</el-text>
-                <div v-if="endpoint.example" class="endpoint-example">
-                  <pre class="code-block-small">{{ endpoint.example }}</pre>
-                </div>
-              </div>
+            <div class="endpoint-detail">
+              <p class="endpoint-desc">{{ $t("api.endpoints.setParameters.desc") }}</p>
+              
+              <h4>{{ $t("api.parameters") }}</h4>
+              <el-table :data="setParametersParams" border size="small" style="margin-bottom: 16px">
+                <el-table-column prop="name" :label="$t('api.paramName')" width="140">
+                  <template #default="scope">
+                    <code>{{ scope.row.name }}</code>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="type" :label="$t('api.paramType')" width="120" />
+                <el-table-column prop="required" :label="$t('api.paramRequired')" width="80">
+                  <template #default="scope">
+                    <el-tag :type="scope.row.required ? 'danger' : 'info'" size="small">
+                      {{ scope.row.required ? $t('api.yes') : $t('api.no') }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" :label="$t('api.paramDesc')" />
+              </el-table>
+
+              <h4>{{ $t("api.example") }}</h4>
+              <pre class="code-block-small">{{ getSetParametersExample() }}</pre>
+              <el-button size="small" @click="copyCode(getSetParametersExample())">
+                <el-icon><CopyDocument /></el-icon> {{ $t("api.copyCode") }}
+              </el-button>
             </div>
           </el-collapse-item>
 
-          <el-collapse-item name="3">
+          <el-collapse-item name="setPart">
             <template #title>
               <div class="collapse-title">
-                <el-icon><MagicStick /></el-icon>
-                <span>{{ $t("api.autoFeatures") }}</span>
-                <el-tag size="small" style="margin-left: auto">3 {{ $t("api.endpoints.count") }}</el-tag>
+                <code class="endpoint-name">setPart</code>
+                <el-tag size="small" style="margin-left: auto">{{ $t("api.categories.modelControl") }}</el-tag>
               </div>
             </template>
-            <div class="endpoint-list">
-              <div class="endpoint-item" v-for="endpoint in autoFeatureEndpoints" :key="endpoint.action">
-                <div class="endpoint-header">
-                  <code class="endpoint-name">{{ endpoint.action }}</code>
-                  <el-button size="small" text @click="copyCode(getEndpointExample(endpoint.action))">
-                    <el-icon><CopyDocument /></el-icon>
-                  </el-button>
-                </div>
-                <el-text type="info" size="small">{{ endpoint.description }}</el-text>
-                <div v-if="endpoint.example" class="endpoint-example">
-                  <pre class="code-block-small">{{ endpoint.example }}</pre>
-                </div>
-              </div>
+            <div class="endpoint-detail">
+              <p class="endpoint-desc">{{ $t("api.endpoints.setPart.desc") }}</p>
+              
+              <h4>{{ $t("api.parameters") }}</h4>
+              <el-table :data="setPartParams" border size="small" style="margin-bottom: 16px">
+                <el-table-column prop="name" :label="$t('api.paramName')" width="140">
+                  <template #default="scope">
+                    <code>{{ scope.row.name }}</code>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="type" :label="$t('api.paramType')" width="100" />
+                <el-table-column prop="required" :label="$t('api.paramRequired')" width="80">
+                  <template #default="scope">
+                    <el-tag :type="scope.row.required ? 'danger' : 'info'" size="small">
+                      {{ scope.row.required ? $t('api.yes') : $t('api.no') }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" :label="$t('api.paramDesc')" />
+              </el-table>
+
+              <h4>{{ $t("api.example") }}</h4>
+              <pre class="code-block-small">{{ getSetPartExample() }}</pre>
+              <el-button size="small" @click="copyCode(getSetPartExample())">
+                <el-icon><CopyDocument /></el-icon> {{ $t("api.copyCode") }}
+              </el-button>
             </div>
           </el-collapse-item>
 
-          <el-collapse-item name="4">
+          <el-collapse-item name="setParts">
             <template #title>
               <div class="collapse-title">
-                <el-icon><Monitor /></el-icon>
-                <span>{{ $t("api.windowControl") }}</span>
-                <el-tag size="small" style="margin-left: auto">2 {{ $t("api.endpoints.count") }}</el-tag>
+                <code class="endpoint-name">setParts</code>
+                <el-tag size="small" style="margin-left: auto">{{ $t("api.categories.modelControl") }}</el-tag>
               </div>
             </template>
-            <div class="endpoint-list">
-              <div class="endpoint-item" v-for="endpoint in windowEndpoints" :key="endpoint.action">
-                <div class="endpoint-header">
-                  <code class="endpoint-name">{{ endpoint.action }}</code>
-                  <el-button size="small" text @click="copyCode(getEndpointExample(endpoint.action))">
-                    <el-icon><CopyDocument /></el-icon>
-                  </el-button>
-                </div>
-                <el-text type="info" size="small">{{ endpoint.description }}</el-text>
-                <div v-if="endpoint.example" class="endpoint-example">
-                  <pre class="code-block-small">{{ endpoint.example }}</pre>
-                </div>
+            <div class="endpoint-detail">
+              <p class="endpoint-desc">{{ $t("api.endpoints.setParts.desc") }}</p>
+              
+              <h4>{{ $t("api.parameters") }}</h4>
+              <el-table :data="setPartsParams" border size="small" style="margin-bottom: 16px">
+                <el-table-column prop="name" :label="$t('api.paramName')" width="140">
+                  <template #default="scope">
+                    <code>{{ scope.row.name }}</code>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="type" :label="$t('api.paramType')" width="120" />
+                <el-table-column prop="required" :label="$t('api.paramRequired')" width="80">
+                  <template #default="scope">
+                    <el-tag :type="scope.row.required ? 'danger' : 'info'" size="small">
+                      {{ scope.row.required ? $t('api.yes') : $t('api.no') }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" :label="$t('api.paramDesc')" />
+              </el-table>
+
+              <h4>{{ $t("api.example") }}</h4>
+              <pre class="code-block-small">{{ getSetPartsExample() }}</pre>
+              <el-button size="small" @click="copyCode(getSetPartsExample())">
+                <el-icon><CopyDocument /></el-icon> {{ $t("api.copyCode") }}
+              </el-button>
+            </div>
+          </el-collapse-item>
+
+          <!-- Animations -->
+          <el-collapse-item name="playMotion">
+            <template #title>
+              <div class="collapse-title">
+                <code class="endpoint-name">playMotion</code>
+                <el-tag size="small" type="success" style="margin-left: auto">{{ $t("api.categories.animations") }}</el-tag>
               </div>
+            </template>
+            <div class="endpoint-detail">
+              <p class="endpoint-desc">{{ $t("api.endpoints.playMotion.desc") }}</p>
+              
+              <h4>{{ $t("api.parameters") }}</h4>
+              <el-table :data="playMotionParams" border size="small" style="margin-bottom: 16px">
+                <el-table-column prop="name" :label="$t('api.paramName')" width="140">
+                  <template #default="scope">
+                    <code>{{ scope.row.name }}</code>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="type" :label="$t('api.paramType')" width="100" />
+                <el-table-column prop="required" :label="$t('api.paramRequired')" width="80">
+                  <template #default="scope">
+                    <el-tag :type="scope.row.required ? 'danger' : 'info'" size="small">
+                      {{ scope.row.required ? $t('api.yes') : $t('api.no') }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" :label="$t('api.paramDesc')" />
+              </el-table>
+
+              <h4>{{ $t("api.example") }}</h4>
+              <pre class="code-block-small">{{ getPlayMotionExample() }}</pre>
+              <el-button size="small" @click="copyCode(getPlayMotionExample())">
+                <el-icon><CopyDocument /></el-icon> {{ $t("api.copyCode") }}
+              </el-button>
+
+              <el-alert type="info" :closable="false" style="margin-top: 12px">
+                <strong>{{ $t("api.commonMotionGroups") }}</strong>
+                <ul style="margin: 8px 0 0 20px; padding: 0">
+                  <li><code>Idle</code> - {{ $t("api.motionGroups.idle") }}</li>
+                  <li><code>TapBody</code> - {{ $t("api.motionGroups.tapBody") }}</li>
+                  <li><code>TapHead</code> - {{ $t("api.motionGroups.tapHead") }}</li>
+                  <li><code>Shake</code> - {{ $t("api.motionGroups.shake") }}</li>
+                  <li><code>Flick</code> - {{ $t("api.motionGroups.flick") }}</li>
+                </ul>
+              </el-alert>
+            </div>
+          </el-collapse-item>
+
+          <el-collapse-item name="playRandomMotion">
+            <template #title>
+              <div class="collapse-title">
+                <code class="endpoint-name">playRandomMotion</code>
+                <el-tag size="small" type="success" style="margin-left: auto">{{ $t("api.categories.animations") }}</el-tag>
+              </div>
+            </template>
+            <div class="endpoint-detail">
+              <p class="endpoint-desc">{{ $t("api.endpoints.playRandomMotion.desc") }}</p>
+              
+              <h4>{{ $t("api.parameters") }}</h4>
+              <el-table :data="playRandomMotionParams" border size="small" style="margin-bottom: 16px">
+                <el-table-column prop="name" :label="$t('api.paramName')" width="140">
+                  <template #default="scope">
+                    <code>{{ scope.row.name }}</code>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="type" :label="$t('api.paramType')" width="100" />
+                <el-table-column prop="required" :label="$t('api.paramRequired')" width="80">
+                  <template #default="scope">
+                    <el-tag :type="scope.row.required ? 'danger' : 'info'" size="small">
+                      {{ scope.row.required ? $t('api.yes') : $t('api.no') }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" :label="$t('api.paramDesc')" />
+              </el-table>
+
+              <h4>{{ $t("api.example") }}</h4>
+              <pre class="code-block-small">{{ getPlayRandomMotionExample() }}</pre>
+              <el-button size="small" @click="copyCode(getPlayRandomMotionExample())">
+                <el-icon><CopyDocument /></el-icon> {{ $t("api.copyCode") }}
+              </el-button>
+            </div>
+          </el-collapse-item>
+
+          <!-- Auto Features -->
+          <el-collapse-item name="setAutoBreath">
+            <template #title>
+              <div class="collapse-title">
+                <code class="endpoint-name">setAutoBreath</code>
+                <el-tag size="small" type="warning" style="margin-left: auto">{{ $t("api.categories.autoFeatures") }}</el-tag>
+              </div>
+            </template>
+            <div class="endpoint-detail">
+              <p class="endpoint-desc">{{ $t("api.endpoints.setAutoBreath.desc") }}</p>
+              
+              <h4>{{ $t("api.parameters") }}</h4>
+              <el-table :data="autoFeatureParams" border size="small" style="margin-bottom: 16px">
+                <el-table-column prop="name" :label="$t('api.paramName')" width="140">
+                  <template #default="scope">
+                    <code>{{ scope.row.name }}</code>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="type" :label="$t('api.paramType')" width="100" />
+                <el-table-column prop="required" :label="$t('api.paramRequired')" width="80">
+                  <template #default="scope">
+                    <el-tag :type="scope.row.required ? 'danger' : 'info'" size="small">
+                      {{ scope.row.required ? $t('api.yes') : $t('api.no') }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" :label="$t('api.paramDesc')" />
+              </el-table>
+
+              <h4>{{ $t("api.example") }}</h4>
+              <pre class="code-block-small">{{ getAutoBreathExample() }}</pre>
+              <el-button size="small" @click="copyCode(getAutoBreathExample())">
+                <el-icon><CopyDocument /></el-icon> {{ $t("api.copyCode") }}
+              </el-button>
+            </div>
+          </el-collapse-item>
+
+          <el-collapse-item name="setAutoEyeBlink">
+            <template #title>
+              <div class="collapse-title">
+                <code class="endpoint-name">setAutoEyeBlink</code>
+                <el-tag size="small" type="warning" style="margin-left: auto">{{ $t("api.categories.autoFeatures") }}</el-tag>
+              </div>
+            </template>
+            <div class="endpoint-detail">
+              <p class="endpoint-desc">{{ $t("api.endpoints.setAutoEyeBlink.desc") }}</p>
+              
+              <h4>{{ $t("api.parameters") }}</h4>
+              <el-table :data="autoFeatureParams" border size="small" style="margin-bottom: 16px">
+                <el-table-column prop="name" :label="$t('api.paramName')" width="140">
+                  <template #default="scope">
+                    <code>{{ scope.row.name }}</code>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="type" :label="$t('api.paramType')" width="100" />
+                <el-table-column prop="required" :label="$t('api.paramRequired')" width="80">
+                  <template #default="scope">
+                    <el-tag :type="scope.row.required ? 'danger' : 'info'" size="small">
+                      {{ scope.row.required ? $t('api.yes') : $t('api.no') }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" :label="$t('api.paramDesc')" />
+              </el-table>
+
+              <h4>{{ $t("api.example") }}</h4>
+              <pre class="code-block-small">{{ getAutoEyeBlinkExample() }}</pre>
+              <el-button size="small" @click="copyCode(getAutoEyeBlinkExample())">
+                <el-icon><CopyDocument /></el-icon> {{ $t("api.copyCode") }}
+              </el-button>
+            </div>
+          </el-collapse-item>
+
+          <el-collapse-item name="setTrackMouse">
+            <template #title>
+              <div class="collapse-title">
+                <code class="endpoint-name">setTrackMouse</code>
+                <el-tag size="small" type="warning" style="margin-left: auto">{{ $t("api.categories.autoFeatures") }}</el-tag>
+              </div>
+            </template>
+            <div class="endpoint-detail">
+              <p class="endpoint-desc">{{ $t("api.endpoints.setTrackMouse.desc") }}</p>
+              
+              <h4>{{ $t("api.parameters") }}</h4>
+              <el-table :data="autoFeatureParams" border size="small" style="margin-bottom: 16px">
+                <el-table-column prop="name" :label="$t('api.paramName')" width="140">
+                  <template #default="scope">
+                    <code>{{ scope.row.name }}</code>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="type" :label="$t('api.paramType')" width="100" />
+                <el-table-column prop="required" :label="$t('api.paramRequired')" width="80">
+                  <template #default="scope">
+                    <el-tag :type="scope.row.required ? 'danger' : 'info'" size="small">
+                      {{ scope.row.required ? $t('api.yes') : $t('api.no') }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" :label="$t('api.paramDesc')" />
+              </el-table>
+
+              <h4>{{ $t("api.example") }}</h4>
+              <pre class="code-block-small">{{ getTrackMouseExample() }}</pre>
+              <el-button size="small" @click="copyCode(getTrackMouseExample())">
+                <el-icon><CopyDocument /></el-icon> {{ $t("api.copyCode") }}
+              </el-button>
+            </div>
+          </el-collapse-item>
+
+          <!-- Window Control -->
+          <el-collapse-item name="showDisplay">
+            <template #title>
+              <div class="collapse-title">
+                <code class="endpoint-name">showDisplay</code>
+                <el-tag size="small" type="info" style="margin-left: auto">{{ $t("api.categories.windowControl") }}</el-tag>
+              </div>
+            </template>
+            <div class="endpoint-detail">
+              <p class="endpoint-desc">{{ $t("api.endpoints.showDisplay.desc") }}</p>
+              
+              <h4>{{ $t("api.parameters") }}</h4>
+              <el-alert type="info" :closable="false">{{ $t("api.noParameters") }}</el-alert>
+
+              <h4 style="margin-top: 16px">{{ $t("api.example") }}</h4>
+              <pre class="code-block-small">{{ getShowDisplayExample() }}</pre>
+              <el-button size="small" @click="copyCode(getShowDisplayExample())">
+                <el-icon><CopyDocument /></el-icon> {{ $t("api.copyCode") }}
+              </el-button>
+            </div>
+          </el-collapse-item>
+
+          <el-collapse-item name="hideDisplay">
+            <template #title>
+              <div class="collapse-title">
+                <code class="endpoint-name">hideDisplay</code>
+                <el-tag size="small" type="info" style="margin-left: auto">{{ $t("api.categories.windowControl") }}</el-tag>
+              </div>
+            </template>
+            <div class="endpoint-detail">
+              <p class="endpoint-desc">{{ $t("api.endpoints.hideDisplay.desc") }}</p>
+              
+              <h4>{{ $t("api.parameters") }}</h4>
+              <el-alert type="info" :closable="false">{{ $t("api.noParameters") }}</el-alert>
+
+              <h4 style="margin-top: 16px">{{ $t("api.example") }}</h4>
+              <pre class="code-block-small">{{ getHideDisplayExample() }}</pre>
+              <el-button size="small" @click="copyCode(getHideDisplayExample())">
+                <el-icon><CopyDocument /></el-icon> {{ $t("api.copyCode") }}
+              </el-button>
             </div>
           </el-collapse-item>
         </el-collapse>
@@ -475,6 +792,7 @@ const apiStatus = reactive({
 });
 
 const testing = ref(false);
+const activeEndpoint = ref('');
 
 // Initialize values from config when available
 onMounted(() => {
@@ -485,6 +803,66 @@ onMounted(() => {
   }
   checkApiStatus();
 });
+
+// Parameter definitions for each endpoint
+const setParameterParams = [
+  { name: 'parameterId', type: 'string', required: true, description: t("api.params.parameterId") },
+  { name: 'value', type: 'number', required: true, description: t("api.params.parameterValue") },
+];
+
+const setParametersParams = [
+  { name: 'parameters', type: 'Array<Object>', required: true, description: t("api.params.parametersArray") },
+  { name: 'parameters[].id', type: 'string', required: true, description: t("api.params.parameterId") },
+  { name: 'parameters[].value', type: 'number', required: true, description: t("api.params.parameterValue") },
+];
+
+const setPartParams = [
+  { name: 'partId', type: 'string', required: true, description: t("api.params.partId") },
+  { name: 'opacity', type: 'number', required: true, description: t("api.params.opacity") },
+];
+
+const setPartsParams = [
+  { name: 'parts', type: 'Array<Object>', required: true, description: t("api.params.partsArray") },
+  { name: 'parts[].id', type: 'string', required: true, description: t("api.params.partId") },
+  { name: 'parts[].opacity', type: 'number', required: true, description: t("api.params.opacity") },
+];
+
+const playMotionParams = [
+  { name: 'group', type: 'string', required: true, description: t("api.params.motionGroup") },
+  { name: 'index', type: 'number', required: true, description: t("api.params.motionIndex") },
+  { name: 'priority', type: 'number', required: false, description: t("api.params.priority") },
+];
+
+const playRandomMotionParams = [
+  { name: 'group', type: 'string', required: true, description: t("api.params.motionGroup") },
+  { name: 'priority', type: 'number', required: false, description: t("api.params.priority") },
+];
+
+const autoFeatureParams = [
+  { name: 'enabled', type: 'boolean', required: true, description: t("api.params.enabled") },
+];
+
+// Common Live2D parameters
+const commonLive2DParameters = [
+  { id: 'ParamAngleX', description: t("api.live2dParams.angleX"), range: '-30 to 30' },
+  { id: 'ParamAngleY', description: t("api.live2dParams.angleY"), range: '-30 to 30' },
+  { id: 'ParamAngleZ', description: t("api.live2dParams.angleZ"), range: '-30 to 30' },
+  { id: 'ParamEyeLOpen', description: t("api.live2dParams.eyeLOpen"), range: '0.0 to 1.0' },
+  { id: 'ParamEyeROpen', description: t("api.live2dParams.eyeROpen"), range: '0.0 to 1.0' },
+  { id: 'ParamEyeBallX', description: t("api.live2dParams.eyeBallX"), range: '-1.0 to 1.0' },
+  { id: 'ParamEyeBallY', description: t("api.live2dParams.eyeBallY"), range: '-1.0 to 1.0' },
+  { id: 'ParamMouthOpenY', description: t("api.live2dParams.mouthOpenY"), range: '0.0 to 1.0' },
+  { id: 'ParamMouthForm', description: t("api.live2dParams.mouthForm"), range: '-1.0 to 1.0' },
+  { id: 'ParamBrowLY', description: t("api.live2dParams.browLY"), range: '-1.0 to 1.0' },
+  { id: 'ParamBrowRY', description: t("api.live2dParams.browRY"), range: '-1.0 to 1.0' },
+  { id: 'ParamBodyAngleX', description: t("api.live2dParams.bodyAngleX"), range: '-10 to 10' },
+  { id: 'ParamBodyAngleY', description: t("api.live2dParams.bodyAngleY"), range: '-10 to 10' },
+  { id: 'ParamBodyAngleZ', description: t("api.live2dParams.bodyAngleZ"), range: '-10 to 10' },
+  { id: 'ParamBreath', description: t("api.live2dParams.breath"), range: '0.0 to 1.0' },
+  { id: 'ParamHairFront', description: t("api.live2dParams.hairFront"), range: '-1.0 to 1.0' },
+  { id: 'ParamHairSide', description: t("api.live2dParams.hairSide"), range: '-1.0 to 1.0' },
+  { id: 'ParamHairBack', description: t("api.live2dParams.hairBack"), range: '-1.0 to 1.0' },
+];
 
 const modelControlEndpoints = [
   { 
@@ -637,6 +1015,137 @@ ws.on('message', (data) => {
   console.log('Response:', data.toString());
 });`;
 });
+
+// Example generators
+function getSetParameterCurlExample() {
+  return `curl -X POST http://localhost:${httpPort.value} \\
+  -H "Content-Type: application/json" \\
+  -d '{"action":"setParameter","data":{"parameterId":"ParamMouthOpenY","value":0.8}}'`;
+}
+
+function getSetParameterPythonExample() {
+  return `import requests
+
+response = requests.post('http://localhost:${httpPort.value}', json={
+    "action": "setParameter",
+    "data": {
+        "parameterId": "ParamMouthOpenY",
+        "value": 0.8
+    }
+})
+print(response.json())`;
+}
+
+function getSetParameterJSExample() {
+  return `fetch('http://localhost:${httpPort.value}', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    action: 'setParameter',
+    data: {
+      parameterId: 'ParamMouthOpenY',
+      value: 0.8
+    }
+  })
+})
+.then(r => r.json())
+.then(console.log);`;
+}
+
+function getSetParametersExample() {
+  return `{
+  "action": "setParameters",
+  "data": {
+    "parameters": [
+      {"id": "ParamMouthOpenY", "value": 0.8},
+      {"id": "ParamEyeLOpen", "value": 0.0},
+      {"id": "ParamEyeROpen", "value": 0.0}
+    ]
+  }
+}`;
+}
+
+function getSetPartExample() {
+  return `{
+  "action": "setPart",
+  "data": {
+    "partId": "Part01ArmL",
+    "opacity": 0.5
+  }
+}`;
+}
+
+function getSetPartsExample() {
+  return `{
+  "action": "setParts",
+  "data": {
+    "parts": [
+      {"id": "Part01ArmL", "opacity": 0.5},
+      {"id": "Part01ArmR", "opacity": 0.5}
+    ]
+  }
+}`;
+}
+
+function getPlayMotionExample() {
+  return `{
+  "action": "playMotion",
+  "data": {
+    "group": "TapBody",
+    "index": 0,
+    "priority": 2
+  }
+}`;
+}
+
+function getPlayRandomMotionExample() {
+  return `{
+  "action": "playRandomMotion",
+  "data": {
+    "group": "Idle",
+    "priority": 1
+  }
+}`;
+}
+
+function getAutoBreathExample() {
+  return `{
+  "action": "setAutoBreath",
+  "data": {
+    "enabled": true
+  }
+}`;
+}
+
+function getAutoEyeBlinkExample() {
+  return `{
+  "action": "setAutoEyeBlink",
+  "data": {
+    "enabled": true
+  }
+}`;
+}
+
+function getTrackMouseExample() {
+  return `{
+  "action": "setTrackMouse",
+  "data": {
+    "enabled": true
+  }
+}`;
+}
+
+function getShowDisplayExample() {
+  return `{
+  "action": "showDisplay"
+}`;
+}
+
+function getHideDisplayExample() {
+  return `{
+  "action": "hideDisplay"
+}`;
+}
 
 async function checkApiStatus() {
   try {
@@ -902,5 +1411,72 @@ function openLink(url) {
 // Card customization
 :deep(.el-card__body) {
   padding: 16px;
+}
+
+// Endpoint details
+.endpoint-detail {
+  padding: 0;
+
+  .endpoint-desc {
+    margin: 0 0 16px 0;
+    line-height: 1.6;
+    color: var(--el-text-color-regular);
+  }
+
+  h4 {
+    margin: 16px 0 12px 0;
+    color: var(--el-text-color-primary);
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+// Parameter grid
+.parameter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.parameter-card {
+  padding: 12px;
+  background-color: var(--el-fill-color-light);
+  border-radius: 4px;
+  border: 1px solid var(--el-border-color-lighter);
+
+  .param-id {
+    display: block;
+    font-weight: 600;
+    color: var(--el-color-primary);
+    font-size: 12px;
+    margin-bottom: 6px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .param-desc {
+    margin: 0 0 6px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--el-text-color-regular);
+  }
+
+  .param-range {
+    font-size: 11px;
+    color: var(--el-text-color-secondary);
+    font-style: italic;
+  }
+}
+
+// Table customization for parameters
+:deep(.el-table) {
+  font-size: 13px;
+
+  code {
+    background-color: var(--el-fill-color-light);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
 }
 </style>
