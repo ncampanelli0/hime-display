@@ -4,5 +4,6 @@ export default {
   control: "Control",
   model: "Model",
   source: "Source",
+  console: "Console",
   about: "About",
 };
