@@ -29,6 +29,7 @@ export default defineConfig({
     }),
   ],
   root: "./src/renderer",
+  publicDir: "public",
   build: {
     emptyOutDir: true,
     rollupOptions: {

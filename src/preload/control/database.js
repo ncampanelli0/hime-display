@@ -294,11 +294,9 @@ function splitDirName(fileDir) {
 }
 // Windows下使用file:会导致路径出错，热重载开发环境下不使用file:会导致路径报错
 // Windows的路径斜杠导致MMD和Spine模型无法加载，这里统一又进行了一次斜杠的替换……Windows我忍你很久了啊，光在这个路径上这已经是第二次出问题了
+// Updated: Use file:// protocol for all environments since webSecurity: false allows it
 function resolveEntrancePath(fileDir) {
-  return (
-    (import.meta.env.DEV ? "file://" : "") +
-    path.resolve(fileDir).split(path.sep).join("/")
-  );
+  return "file:///" + path.resolve(fileDir).split(path.sep).join("/");
 }
 function writeModelInfo(modelInfo) {
   //  防止重复写入模型数据
