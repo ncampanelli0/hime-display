@@ -14,7 +14,7 @@ Hime Display aims to create an open-source, cross-platform, universal desktop mo
 
 ## ✨ NEW: API for AI Integration
 
-Control your Live2D models programmatically via WebSocket/HTTP! Perfect for creating AI VTuber systems like Neuro-sama.
+Control your Live2D models programmatically via WebSocket/HTTP! Perfect for creating AI VTuber systems!
 
 - **[Quick Start Guide](./docs/API_QUICKSTART.md)** - Get started in 5 minutes
 - **[Full API Documentation](./docs/API.md)** - Complete reference
