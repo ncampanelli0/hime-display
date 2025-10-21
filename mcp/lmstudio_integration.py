@@ -124,7 +124,7 @@ class AnimatedChatbot:
     async def initialize(self):
         """Initialize all components"""
         print("=" * 70)
-        print("LM Studio + Hime Display: Neuro-sama Style AI VTuber")
+        print("LM Studio + Hime Display")
         print("=" * 70)
         print("\nInitializing components...\n")
         
@@ -145,7 +145,7 @@ class AnimatedChatbot:
             print("\nMake sure:")
             print("  1. LM Studio is running")
             print("  2. A model is loaded")
-            print("  3. Local server is started (default: http://localhost:1234)")
+            print("  3. Local server is started (default: http://localhost:41)")
             return False
         
         self.conversation_history = [self.system_prompt]
