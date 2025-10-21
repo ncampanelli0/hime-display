@@ -2,3 +2,7 @@
 mcp>=0.9.0
 websockets>=12.0
 aiohttp>=3.9.0
+
+# Optional: For enhanced features
+# nltk>=3.8  # Advanced emotion detection
+# openai>=1.0  # If using OpenAI API instead of LM Studio
