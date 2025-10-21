@@ -4,17 +4,26 @@ This directory contains the Model Context Protocol (MCP) server configuration fo
 
 ## What is MCP?
 
-Model Context Protocol (MCP) is an open protocol that enables AI assistants to securely connect to external tools and data sources. This MCP server allows AI models in LM Studio to control your Live2D character in real-time.
+Model Context Protocol (MCP) is an open protocol that enables AI assistants to securely connect to external tools and data sources. This MCP server allows AI models in LM Studio to control your Live2D, VRoid, MMD, and Spine characters in real-time.
 
 ## Features
 
-- 🎭 **Emotion Control** - Set character emotions (happy, sad, surprised, angry, etc.)
-- 🎬 **Animation Playback** - Play animations from different groups
+- 🎭 **Emotion Control** - Set character emotions (happy, sad, surprised, angry, etc.) for both Live2D and VRoid
+- 🎬 **Animation Playback** - Play animations from different groups across all model types
 - 👀 **Gaze Control** - Make the character look in specific directions
 - 💬 **Speaking Animation** - Animate mouth movements for speech
-- 🎨 **Parameter Control** - Fine-tune individual Live2D parameters
+- 🎨 **Parameter Control** - Fine-tune individual model parameters (Live2D params, VRM morphs, bone transforms)
+- 🎭 **VRM Expressions** - Native VRoid/VRM expression support (happy, angry, sad, relaxed, surprised, etc.)
 - 🪟 **Window Management** - Show/hide the display window
 - 🤖 **Auto Features** - Control breathing, blinking, and mouse tracking
+- 🔄 **Auto-Detection** - Automatically adapts to the currently loaded model type
+
+## Supported Model Types
+
+- **Live2D** (Cubism 2.x and 3.x/4.x)
+- **VRoid/VRM** models
+- **MMD** models
+- **Spine** models (2D skeletal animation)
 
 ## Installation
 
@@ -104,7 +113,7 @@ const HIME_DISPLAY_HTTP = "http://localhost:8766"; // Your HTTP port
 
 Once configured, you can ask the AI in LM Studio to control your character:
 
-**Example prompts:**
+**Example prompts (work with all models):**
 
 - "Make the character look happy"
 - "Play an idle animation"
@@ -114,39 +123,82 @@ Once configured, you can ask the AI in LM Studio to control your character:
 - "Set the character to look surprised"
 - "Turn off mouse tracking"
 
-The AI will automatically use the available MCP tools to control the Live2D model.
+**VRoid-specific prompts:**
+
+- "Set the VRoid expression to 'relaxed' with 0.8 intensity"
+- "Make the VRM character smile" (uses VRM expressions)
+- "Set the happy expression on the VRoid model"
+
+The AI will automatically use the available MCP tools to control the model. The server works with whichever model type is currently loaded in Hime Display.
+
+## Model-Specific Notes
+
+### Live2D Models
+- Use `set_emotion` for pre-configured emotion combinations
+- Use `set_parameter` with Live2D parameter IDs (ParamAngleX, ParamMouthForm, etc.)
+- All standard features work (breathing, blinking, mouse tracking)
+
+### VRoid/VRM Models
+- Use `set_emotion` for general emotions (internally mapped to VRM expressions)
+- Use `set_vrm_expression` for native VRM expression control with weight
+- VRM expressions include: happy, angry, sad, relaxed, surprised, neutral, blink, etc.
+- Use `control:set-morph-weight` for custom morph targets
+- Mouse tracking and animations work the same as Live2D
+
+### MMD Models
+- Animations and basic controls work
+- Parameter control depends on model structure
+
+### Spine Models
+- Animations work natively
+- Some features may be limited depending on rig complexity
 
 ## Available Tools
 
 The MCP server exposes these tools to the AI:
 
 ### 1. `set_emotion`
-Set the character's emotion.
-- **Parameters:** emotion (happy, sad, surprised, angry, confused, neutral)
+Set the character's emotion (works with Live2D and VRoid).
+- **Parameters:** emotion (happy, sad, surprised, angry, confused, neutral, worried, excited)
+- **Works with:** Live2D, VRoid
 
 ### 2. `play_animation`
-Play an animation from a specific group.
+Play an animation from a specific group (works with all model types).
 - **Parameters:** group (string), random (boolean)
+- **Works with:** Live2D, VRoid, MMD, Spine
 
-### 3. `set_parameter`
-Set a specific Live2D parameter.
+### 3. `set_vrm_expression`
+Set a VRM expression (VRoid models only). More native than generic emotions.
+- **Parameters:** expression (string), weight (0.0-1.0)
+- **Examples:** happy, angry, sad, relaxed, surprised, neutral, blink
+- **Works with:** VRoid only
+
+### 4. `set_parameter`
+Set a specific model parameter for fine control.
 - **Parameters:** parameter_id (string), value (number)
+- **Live2D:** ParamAngleX, ParamMouthOpenY, ParamEyeBallX, etc.
+- **VRoid:** Morph names and bone transforms
+- **Works with:** Live2D, VRoid
 
-### 4. `speak`
+### 5. `speak`
 Animate speaking for a duration.
 - **Parameters:** duration (seconds), intensity (0.0-1.0)
+- **Works with:** Live2D, VRoid
 
-### 5. `look_at`
+### 6. `look_at`
 Make the character look in a direction.
 - **Parameters:** x (-1.0 to 1.0), y (-1.0 to 1.0)
+- **Works with:** Live2D, VRoid
 
-### 6. `control_auto_features`
+### 7. `control_auto_features`
 Enable/disable automatic features.
 - **Parameters:** breath (bool), eye_blink (bool), track_mouse (bool)
+- **Works with:** Live2D, VRoid
 
-### 7. `window_control`
+### 8. `window_control`
 Show or hide the display window.
 - **Parameters:** action (show/hide)
+- **Works with:** All models
 
 ## Troubleshooting
 

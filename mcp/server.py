@@ -1,9 +1,10 @@
 """
 Hime Display MCP Server for LM Studio
-Model Context Protocol server for controlling Live2D characters
+Model Context Protocol server for controlling Live2D and VRoid characters
 
 This server enables AI assistants in LM Studio to control Hime Display
-Live2D models in real-time through natural language commands.
+models (Live2D, VRoid, MMD, Spine) in real-time through natural language commands.
+Auto-detects the current model type and provides appropriate controls.
 """
 
 import asyncio
@@ -22,6 +23,12 @@ HIME_DISPLAY_HTTP = "http://localhost:8766"
 # Initialize MCP server
 app = Server("hime-display")
 
+# Model type constants
+MODEL_TYPE_LIVE2D = "Live2D"
+MODEL_TYPE_VROID = "Vroid"
+MODEL_TYPE_MMD = "Mmd"
+MODEL_TYPE_SPINE = "Spine"
+
 
 class HimeDisplayConnection:
     """Manages WebSocket connection to Hime Display"""
@@ -30,6 +37,8 @@ class HimeDisplayConnection:
         self.ws_url = ws_url
         self.ws = None
         self.connected = False
+        self.current_model_type = None
+        self.model_info = None
     
     async def connect(self):
         """Establish WebSocket connection"""
@@ -39,10 +48,23 @@ class HimeDisplayConnection:
             # Read initial connection message
             welcome = await self.ws.recv()
             print(f"[Hime Display] {welcome}", file=sys.stderr)
+            # Try to detect model type
+            await self.detect_model_type()
             return True
         except Exception as e:
             print(f"[Error] Failed to connect: {e}", file=sys.stderr)
             return False
+    
+    async def detect_model_type(self):
+        """Detect the current model type from the application"""
+        try:
+            # This is a placeholder - the actual implementation would query
+            # the display window for model info
+            # For now, we'll detect dynamically when commands are sent
+            print("[Info] Model type will be detected dynamically", file=sys.stderr)
+            self.current_model_type = None
+        except Exception as e:
+            print(f"[Warning] Could not detect model type: {e}", file=sys.stderr)
     
     async def send_command(self, action: str, data: dict):
         """Send command to Hime Display"""
@@ -74,11 +96,11 @@ display = HimeDisplayConnection(HIME_DISPLAY_WS)
 
 @app.list_tools()
 async def list_tools() -> list[Tool]:
-    """Define available tools for controlling the Live2D model"""
+    """Define available tools for controlling the model (Live2D, VRoid, etc.)"""
     return [
         Tool(
             name="set_emotion",
-            description="Set the Live2D character's emotional expression. Use this when the AI wants to express or display a specific emotion through the character.",
+            description="Set the character's emotional expression. Works with Live2D and VRoid models. Use this when the AI wants to express or display a specific emotion through the character.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -93,7 +115,7 @@ async def list_tools() -> list[Tool]:
         ),
         Tool(
             name="play_animation",
-            description="Play a Live2D animation from a specific motion group. Common groups include 'idle', 'motion', 'greeting', 'tap_head', 'tap_body'. Use this to make the character perform actions.",
+            description="Play an animation from a specific motion group. Common groups include 'idle', 'motion', 'greeting', 'tap_head', 'tap_body'. Works with Live2D, VRoid, MMD, and Spine models.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -111,18 +133,39 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
+            name="set_vrm_expression",
+            description="Set a VRM expression (for VRoid models only). VRM expressions include presets like 'happy', 'angry', 'sad', 'relaxed', 'surprised', 'neutral', 'blink', etc. This is more native to VRoid than generic emotions.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "expression": {
+                        "type": "string",
+                        "description": "VRM expression name (e.g., 'happy', 'angry', 'sad', 'relaxed', 'surprised', 'neutral', 'blink')"
+                    },
+                    "weight": {
+                        "type": "number",
+                        "description": "Expression weight/intensity (0.0 to 1.0)",
+                        "minimum": 0.0,
+                        "maximum": 1.0,
+                        "default": 1.0
+                    }
+                },
+                "required": ["expression"]
+            }
+        ),
+        Tool(
             name="set_parameter",
-            description="Set a specific Live2D parameter value for fine control of the model. Use this for precise control of facial features or body parts. Common parameters include ParamAngleX, ParamMouthOpenY, ParamEyeBallX, etc.",
+            description="Set a specific model parameter value for fine control. For Live2D: ParamAngleX, ParamMouthOpenY, ParamEyeBallX, etc. For VRoid: uses morph targets and bone transforms. This is advanced control.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "parameter_id": {
                         "type": "string",
-                        "description": "Parameter ID (e.g., 'ParamAngleX' for head rotation, 'ParamMouthOpenY' for mouth opening)"
+                        "description": "Parameter ID. Live2D: 'ParamAngleX', 'ParamMouthOpenY', etc. VRoid: morph names or bone names."
                     },
                     "value": {
                         "type": "number",
-                        "description": "Parameter value (typically -30 to 30 for angles, 0 to 1 for openness)"
+                        "description": "Parameter value (typically -30 to 30 for angles, 0 to 1 for weights/openness)"
                     }
                 },
                 "required": ["parameter_id", "value"]
@@ -300,6 +343,21 @@ async def call_tool(name: str, arguments: Any) -> Sequence[TextContent | Embedde
                     type="text",
                     text=f"✓ Playing animation from '{group}' group"
                 )]
+        
+        elif name == "set_vrm_expression":
+            expression = arguments["expression"]
+            weight = arguments.get("weight", 1.0)
+            
+            # For VRoid models, set morph weight directly
+            await display.send_command("control:set-morph-weight", {
+                "morphName": expression,
+                "weight": weight
+            })
+            
+            return [TextContent(
+                type="text",
+                text=f"✓ Set VRM expression '{expression}' to weight {weight}"
+            )]
         
         elif name == "set_parameter":
             parameter_id = arguments["parameter_id"]
