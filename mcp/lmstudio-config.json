@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "hime-display": {
+      "command": "python",
+      "args": [
+        "E:\\programmingfiles\\javascript\\himedisplay\\hime-display\\mcp\\server.py"
+      ],
+      "env": {},
+      "disabled": false
+    }
+  }
+}

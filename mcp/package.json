@@ -1,0 +1,28 @@
+{
+  "name": "hime-display-mcp",
+  "version": "1.0.0",
+  "description": "MCP Server for Hime Display - LM Studio Integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "start:python": "python server.py"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "lm-studio",
+    "live2d",
+    "vtuber",
+    "ai"
+  ],
+  "author": "Hime Display Contributors",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
