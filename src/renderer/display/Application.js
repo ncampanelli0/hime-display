@@ -1,6 +1,7 @@
 import { Live2dManager } from "@display/modelManagers/Live2dManager";
 import { MmdManager } from "@display/modelManagers/MmdManager";
 import { VroidManager } from "@display/modelManagers/VroidManager";
+import { GltfManager } from "@display/modelManagers/GltfManager";
 import { SpineManager } from "@display/modelManagers/SpineManager";
 import { SpineManager42 } from "@display/modelManagers/SpineManager42";
 import { RecordManager } from "@display/utils/record/RecordManager";
@@ -59,6 +60,7 @@ export class Application {
     this.modelManagers.Live2D = new Live2dManager(this);
     this.modelManagers.MMD = new MmdManager(this);
     this.modelManagers.VRoid = new VroidManager(this);
+    this.modelManagers.GLTF = new GltfManager(this);
     this.modelManagers.Spine = new SpineManager(this);
     this.modelManagers.Spine42 = new SpineManager42(this);
   }

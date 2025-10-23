@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@app/main@file:E:\\programmingfiles\\javascript\\himedisplay\\hime-display\\src\\main":
+"@app/main@file:c:\\Users\\Spare Laptop 1\\Desktop\\programmingfiles\\Nick C\\himedisplay\\hime-display\\src\\main":
   version "0.0.0"
   resolved "file:src/main"
   dependencies:
@@ -11,14 +11,14 @@
     electron-log "^5.3.4"
     lowdb "1.0.0"
 
-"@app/preload@file:E:\\programmingfiles\\javascript\\himedisplay\\hime-display\\src\\preload":
+"@app/preload@file:c:\\Users\\Spare Laptop 1\\Desktop\\programmingfiles\\Nick C\\himedisplay\\hime-display\\src\\preload":
   version "0.0.0"
   resolved "file:src/preload"
   dependencies:
     electron "^35.2.1"
     lowdb "1.0.0"
 
-"@app/renderer@file:E:\\programmingfiles\\javascript\\himedisplay\\hime-display\\src\\renderer":
+"@app/renderer@file:c:\\Users\\Spare Laptop 1\\Desktop\\programmingfiles\\Nick C\\himedisplay\\hime-display\\src\\renderer":
   version "0.0.0"
   resolved "file:src/renderer"
   dependencies:

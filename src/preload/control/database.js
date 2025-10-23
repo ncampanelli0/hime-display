@@ -152,6 +152,13 @@ async function detectDatabaseItem(fileDir, sourceTypes, sourcePath) {
       }
       break;
     }
+    case ".gltf":
+    case ".glb": {
+      if (sourceTypes["GLTF"]) {
+        processGltf(fileDir, sourcePath);
+      }
+      break;
+    }
     case ".skel": {
       if (sourceTypes["Spine"]) {
         const fileData = await util.promisify(fs.readFile)(fileDir);
@@ -225,6 +232,17 @@ function processVrm(fileDir, sourcePath) {
     extensionName: "vrm",
     entranceFile: resolveEntrancePath(fileDir),
     themeColor: "#ffec00",
+    sourcePath,
+  });
+}
+function processGltf(fileDir, sourcePath) {
+  const extensionName = path.extname(fileDir).slice(1); // Remove the dot
+  writeModelInfo({
+    name: splitDirName(fileDir),
+    modelType: "GLTF",
+    extensionName: extensionName,
+    entranceFile: resolveEntrancePath(fileDir),
+    themeColor: "#4caf50",
     sourcePath,
   });
 }

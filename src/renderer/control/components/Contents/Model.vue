@@ -42,6 +42,7 @@
               { text: 'MMD', value: 'MMD' },
               { text: 'VRoid', value: 'VRoid' },
               { text: 'Spine', value: 'Spine' },
+              { text: 'GLTF', value: 'GLTF' },
             ]"
             :filter-method="
               (value, row) => {
@@ -71,6 +72,8 @@
               { text: 'pmx', value: 'pmx' },
               { text: 'vrm', value: 'vrm' },
               { text: 'json', value: 'json' },
+              { text: 'gltf', value: 'gltf' },
+              { text: 'glb', value: 'glb' },
             ]"
             :filter-method="
               (value, row) => {

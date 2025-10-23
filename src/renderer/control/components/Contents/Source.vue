@@ -149,7 +149,7 @@ import SvgIconElButton from "@control/components/Common/SvgIconElButton.vue";
 import HimeTitleWithDivider from "@control/components/Common/TitleWithDivider.vue";
 import { useAppStore } from "@control/store/app";
 const appStore = useAppStore();
-const sourceTypes = ["Live2D", "Spine", "VRoid", "MMD", "motion3D", "audio3D"];
+const sourceTypes = ["Live2D", "Spine", "VRoid", "MMD", "GLTF", "motion3D", "audio3D"];
 const sourceTable = ref();
 const totalInfo = computed(() => [
   {
@@ -164,6 +164,9 @@ const totalInfo = computed(() => [
     }).length,
     MMD: appStore.database.model.filter((item) => {
       return item.modelType === "MMD";
+    }).length,
+    GLTF: appStore.database.model.filter((item) => {
+      return item.modelType === "GLTF";
     }).length,
     motion3D: appStore.database.motion3D.length,
     audio3D: appStore.database.audio3D.length,
@@ -211,6 +214,7 @@ function addSourePath() {
           Spine: true,
           MMD: true,
           VRoid: true,
+          GLTF: true,
           motion3D: true,
           audio3D: true,
         },
