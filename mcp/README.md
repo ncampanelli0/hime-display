@@ -264,9 +264,66 @@ logging.basicConfig(level=logging.DEBUG)
 
 Add new tools by modifying the `list_tools()` and `call_tool()` functions in the server files.
 
+## 🤖 Neuro-sama Style Auto-Animation
+
+Want your character to automatically animate like Neuro-sama based on AI responses? Check out the **Auto-Animation Bridge**!
+
+### Features
+- ✨ **Automatic emotion detection** from AI text
+- 💬 **Auto lip-sync** with speaking animations
+- 🎭 **Reactive animations** based on context
+- 😊 **Idle behaviors** for natural movement
+- 🎯 **Real-time response** to AI generation
+
+### Quick Start
+
+**Option 1: Direct Chat with Auto-Animation**
+
+```powershell
+cd mcp
+python lmstudio_integration.py
+```
+
+This creates an interactive chat session where:
+- You type messages
+- AI responds through LM Studio
+- Character automatically animates with emotions, speaking, and reactions
+
+**Option 2: Test Auto-Animation Only**
+
+```powershell
+python auto_animation_bridge.py
+```
+
+Runs test scenarios to show the animation system.
+
+### How It Works
+
+The auto-animation bridge:
+1. **Analyzes AI responses** for emotional content
+2. **Sets appropriate emotions** (happy, sad, surprised, etc.)
+3. **Calculates speaking duration** based on text length
+4. **Animates mouth movements** in sync
+5. **Plays reactive motions** for strong emotions
+6. **Maintains idle behaviors** when not speaking
+
+### Example
+
+```
+[You] Tell me a joke!
+[AI] Why did the AI cross the road? To optimize the path! Haha!
+
+→ Emotion: happy
+→ Animation: motion
+→ Speaking: 2.3s
+```
+
+**Full Guide:** See [NEURO_SAMA_GUIDE.md](./NEURO_SAMA_GUIDE.md) for complete setup and customization.
+
 ## Resources
 
 - [Hime Display API Documentation](../docs/API.md)
+- [Neuro-sama Style Guide](./NEURO_SAMA_GUIDE.md)
 - [MCP Protocol Specification](https://modelcontextprotocol.io)
 - [LM Studio Documentation](https://lmstudio.ai/docs)
 
