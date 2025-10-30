@@ -25,6 +25,7 @@
     "electron-is": "^3.0.0",
     "electron-log": "^5.3.4",
     "lowdb": "1.0.0",
+    "source-mdl": "^0.2.4",
     "ws": "^8.18.0"
   },
   "devDependencies": {

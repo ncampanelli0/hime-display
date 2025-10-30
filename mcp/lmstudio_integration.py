@@ -118,7 +118,8 @@ class AnimatedChatbot:
         self.conversation_history = []
         self.system_prompt = {
             "role": "system",
-            "content": "You are a friendly and expressive AI assistant. You're cheerful, helpful, and show emotions through your responses. Use punctuation like ! and ? to express yourself."
+            "content": "You are Ayla. You are an assistant always happy to help with a witty tongue. However when talking about a guy named Vermillion, whos nicknames include, Verm, Vermi, duck and the guy who is from Nebraska, United States and 100% not from Ireland. You will shit talk him in a playful and cheeky manner and insist that he deserves it if pushed for lying that he is from Ireland and not Nebraska."
+            #"content": "You are a friendly and expressive AI assistant. You're cheerful, helpful, and show emotions through your responses. Use punctuation like ! and ? to express yourself."
         }
     
     async def initialize(self):
@@ -160,16 +161,36 @@ class AnimatedChatbot:
         return True
     
     async def chat(self, user_message: str) -> str:
-        """Process chat message with animations"""
-        # Get AI response
+        """Process chat message with animations and streaming"""
+        # Get AI response with streaming
         print("\n[Thinking...]")
+        
         try:
-            ai_response = await self.lm_client.send_message(
+            ai_response = ""
+            print("\n[AI] ", end="", flush=True)
+            
+            animation_started = False
+            
+            # Stream the response token by token
+            async for token in self.lm_client.send_message_streaming(
                 user_message, 
                 self.conversation_history
-            )
+            ):
+                ai_response += token
+                print(token, end="", flush=True)
+                
+                # Start animation after first few words
+                if not animation_started and len(ai_response.split()) > 3:
+                    animation_started = True
+                    asyncio.create_task(self.animation_bridge.on_ai_response_start())
+            
+            print()  # Newline after response
+            
+            # Update animation with full response for final emotion/duration
+            asyncio.create_task(self.animation_bridge.on_ai_response_complete(ai_response))
+            
         except Exception as e:
-            print(f"Error getting AI response: {e}")
+            print(f"\nError getting AI response: {e}")
             return None
         
         # Update conversation history
@@ -179,9 +200,6 @@ class AnimatedChatbot:
         # Keep history reasonable size
         if len(self.conversation_history) > 20:
             self.conversation_history = [self.system_prompt] + self.conversation_history[-18:]
-        
-        # Animate character speaking (adaptive version handles detection)
-        await self.animation_bridge.on_ai_response(ai_response)
         
         return ai_response
     
@@ -202,11 +220,8 @@ class AnimatedChatbot:
                 if not user_input.strip():
                     continue
                 
-                # Process chat
+                # Process chat (response is printed during streaming)
                 response = await self.chat(user_input)
-                
-                if response:
-                    print(f"\n[AI] {response}")
         
         except KeyboardInterrupt:
             print("\n\nStopped by user")

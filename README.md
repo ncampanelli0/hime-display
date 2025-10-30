@@ -21,6 +21,16 @@ Control your Live2D models programmatically via WebSocket/HTTP! Perfect for crea
 - **[Python & Node.js Examples](./examples/)** - Ready-to-use client implementations
 - **[MCP Server Example](./examples/mcp_server/)** - Model Context Protocol integration
 
+## 🎮 NEW: Source Engine (MDL) Model Support
+
+Now supports Source Engine models from games like Left 4 Dead 2, Half-Life 2, and Team Fortress 2!
+
+- **[MDL Model Guide](./docs/MDL_GUIDE.md)** - Complete guide for using .mdl files
+- Animation sequence control (walk, run, idle, attack, etc.)
+- Bodygroup and skin switching
+- Full API integration for programmatic control
+- Perfect for game character displays and AI character systems
+
 ## Preview
 
 ### Control Panel
@@ -35,12 +45,13 @@ Can't see anything? that's right, the display window is just a transparent windo
 
 ## Features
 
-1. Multiple Model Type Support: Supports loading Live2D, MMD, VRoid, Spine models.
+1. Multiple Model Type Support: Supports loading Live2D, MMD, VRoid, Spine, and **Source Engine (MDL)** models.
 2. Motion Capture: Provides motion capture support for Live2D, MMD, VRoid with the help of Google's MediaPipe.
 3. Cross Platform: Supports Windows and macOS.
 4. Multilingual support: Supports English, Simplified Chinese, and Japanese.
 5. Full Model Control: Various operations can be performed on the model, including bone transformation, deformation, and animation playback.
 6. Animation transition: MMD model can load animations from Mixamo directly (Plan to support VRoid).
+7. **NEW**: API for programmatic control - perfect for AI character systems and game integration.
 
 ## Basic Usage
 

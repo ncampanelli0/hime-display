@@ -5682,6 +5682,13 @@ source-map@^0.6.0, source-map@^0.6.1:
   resolved "https://registry.npmjs.org/source-map/-/source-map-0.6.1.tgz"
   integrity sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==
 
+source-mdl@^0.2.4:
+  version "0.2.4"
+  resolved "https://registry.npmjs.org/source-mdl/-/source-mdl-0.2.4.tgz"
+  integrity sha512-O+pKsQuzD3u3xSFx8WLJ6cA2kyqKGS/3K5hn9zCqadnozUeyO26GOjt0wQgxXzTvf1qf1PIvf/ouOrJ4UfY6SA==
+  dependencies:
+    structron "^0.4.3"
+
 spdx-correct@^3.0.0:
   version "3.2.0"
   resolved "https://registry.npmjs.org/spdx-correct/-/spdx-correct-3.2.0.tgz"
@@ -5896,6 +5903,11 @@ strip-literal@^3.0.0:
   integrity sha512-TcccoMhJOM3OebGhSBEmp3UZ2SfDMZUEBdRA/9ynfLi8yYajyWX3JiXArcJt4Umh4vISpspkQIY8ZZoCqjbviA==
   dependencies:
     js-tokens "^9.0.1"
+
+structron@^0.4.3:
+  version "0.4.3"
+  resolved "https://registry.npmjs.org/structron/-/structron-0.4.3.tgz"
+  integrity sha512-DaDuI2mQy+QjtxQ8/IjTNPI6FLIF0jxqzwhUn9t1iKneV/0ANHkJfqWl/8pPBepNRc6rl46Q+TpQlnKvDm/9rA==
 
 sumchecker@^3.0.1:
   version "3.0.1"

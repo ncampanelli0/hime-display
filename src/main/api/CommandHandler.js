@@ -78,6 +78,25 @@ export class CommandHandler {
         case "getModelInfo":
           return this.getModelInfo();
 
+        // Source Engine MDL-specific commands
+        case "playSequence":
+          return this.playSequence(data);
+
+        case "stopSequence":
+          return this.stopSequence();
+
+        case "setBodyGroup":
+          return this.setBodyGroup(data);
+
+        case "setSkin":
+          return this.setSkin(data);
+
+        case "setSequenceSpeed":
+          return this.setSequenceSpeed(data);
+
+        case "setSequenceLoop":
+          return this.setSequenceLoop(data);
+
         default:
           logger.warn(`[Command Handler] Unknown action: ${action}`);
           return { success: false, error: "Unknown action" };
@@ -348,6 +367,102 @@ export class CommandHandler {
       action: "getModelInfo",
       message: "Query sent to display window",
     };
+  }
+
+  /**
+   * Play an animation sequence (Source Engine MDL models)
+   * @param {Object} data - { sequenceIndex: number } or { sequenceName: string }
+   */
+  playSequence(data) {
+    const { sequenceIndex, sequenceName } = data;
+
+    if (sequenceIndex === undefined && !sequenceName) {
+      throw new Error("sequenceIndex or sequenceName is required");
+    }
+
+    this.sendToDisplay("control:play-sequence", { sequenceIndex, sequenceName });
+    return { 
+      success: true, 
+      action: "playSequence", 
+      sequenceIndex, 
+      sequenceName 
+    };
+  }
+
+  /**
+   * Stop the current animation sequence (Source Engine MDL models)
+   */
+  stopSequence() {
+    this.sendToDisplay("control:stop-sequence", {});
+    return { success: true, action: "stopSequence" };
+  }
+
+  /**
+   * Set a bodygroup value (Source Engine MDL models)
+   * @param {Object} data - { bodyGroupIndex: number, value: number }
+   */
+  setBodyGroup(data) {
+    const { bodyGroupIndex, value } = data;
+
+    if (bodyGroupIndex === undefined || value === undefined) {
+      throw new Error("bodyGroupIndex and value are required");
+    }
+
+    this.sendToDisplay("control:set-bodygroup", { bodyGroupIndex, value });
+    return { success: true, action: "setBodyGroup", bodyGroupIndex, value };
+  }
+
+  /**
+   * Set the model skin/texture variant (Source Engine MDL models)
+   * @param {Object} data - { skinIndex: number }
+   */
+  setSkin(data) {
+    const { skinIndex } = data;
+
+    if (skinIndex === undefined) {
+      throw new Error("skinIndex is required");
+    }
+
+    this.sendToDisplay("control:set-skin", { skinIndex });
+    return { success: true, action: "setSkin", skinIndex };
+  }
+
+  /**
+   * Set animation sequence playback speed (Source Engine MDL models)
+   * @param {Object} data - { speed: number } (1.0 = normal speed)
+   */
+  setSequenceSpeed(data) {
+    const { speed } = data;
+
+    if (speed === undefined) {
+      throw new Error("speed is required");
+    }
+
+    this.sendToDisplay("control:change-instant-config", {
+      name: "animationSpeed",
+      value: speed,
+    });
+
+    return { success: true, action: "setSequenceSpeed", speed };
+  }
+
+  /**
+   * Set whether animation sequences should loop (Source Engine MDL models)
+   * @param {Object} data - { loop: boolean }
+   */
+  setSequenceLoop(data) {
+    const { loop } = data;
+
+    if (loop === undefined) {
+      throw new Error("loop is required");
+    }
+
+    this.sendToDisplay("control:change-instant-config", {
+      name: "loopAnimation",
+      value: loop,
+    });
+
+    return { success: true, action: "setSequenceLoop", loop };
   }
 
   /**

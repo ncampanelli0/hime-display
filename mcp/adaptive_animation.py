@@ -24,6 +24,7 @@ class ModelCapabilities:
         self.supported_groups: Set[str] = set()
         self.has_motions = False
         self.tested = False
+        self.warnings_shown = set()  # Track which warnings we've already shown
     
     def mark_param_supported(self, param_id: str):
         """Mark a parameter as supported"""
@@ -41,6 +42,13 @@ class ModelCapabilities:
     def supports_group(self, group: str) -> bool:
         """Check if animation group is supported"""
         return group in self.supported_groups
+    
+    def should_warn(self, warning_key: str) -> bool:
+        """Check if we should show a warning (only once per key)"""
+        if warning_key not in self.warnings_shown:
+            self.warnings_shown.add(warning_key)
+            return True
+        return False
 
 
 class AdaptiveAnimationController:
@@ -141,6 +149,12 @@ class AdaptiveAnimationController:
         
         print(f"  ✓ Found {group_count} animation groups")
         
+        # Show capability summary warnings
+        if group_count == 0:
+            print("  ℹ Model doesn't support animations")
+        if not self.capabilities.supports_param("ParamMouthOpenY"):
+            print("  ℹ Model doesn't support mouth animation")
+        
         # Fallback: If nothing worked, assume basic support
         if not self.capabilities.supported_params:
             print("  ℹ Using fallback: Assuming basic parameter support")
@@ -201,13 +215,13 @@ class AdaptiveAnimationController:
     async def speak_animation_adaptive(self, duration: float, intensity: float = 0.7):
         """Speaking animation using available parameters"""
         self.speaking = True
-        print(f"→ Speaking animation: {duration}s")
         
         # Try to use mouth parameter
         if not self.capabilities.supports_param("ParamMouthOpenY"):
-            print("  ℹ Model doesn't support mouth animation")
             self.speaking = False
             return
+        
+        print(f"→ Speaking animation: {duration:.1f}s")
         
         # Disable auto breath if supported
         await self.send_command("setAutoBreath", {"enabled": False})
@@ -236,7 +250,6 @@ class AdaptiveAnimationController:
     async def play_animation_adaptive(self, emotion: str = None):
         """Play animation if model supports it"""
         if not self.capabilities.has_motions:
-            print("  ℹ Model doesn't support animations")
             return
         
         # Try to pick an appropriate group
@@ -351,10 +364,15 @@ class SimpleBridge:
         self.running = True
         return True
     
-    async def on_ai_response(self, response: str):
-        """Process AI response adaptively"""
-        print(f"\n[AI] {response[:60]}...")
-        
+    async def on_ai_response_start(self):
+        """Called when AI starts responding (for quick reactions)"""
+        # Quick look gesture
+        x = random.uniform(-0.3, 0.3)
+        y = random.uniform(-0.1, 0.2)
+        await self.controller.look_at_adaptive(x, y)
+    
+    async def on_ai_response_complete(self, response: str):
+        """Called when AI completes response (for emotion and speaking)"""
         # Simple emotion detection
         emotion = "neutral"
         if any(word in response.lower() for word in ['happy', '!', 'great', 'awesome']):
@@ -376,6 +394,10 @@ class SimpleBridge:
         duration = min(words * 0.15, 8.0)
         if duration > 0.3:
             await self.controller.speak_animation_adaptive(duration)
+    
+    async def on_ai_response(self, response: str):
+        """Process AI response adaptively (legacy method)"""
+        await self.on_ai_response_complete(response)
     
     async def shutdown(self):
         """Shutdown"""

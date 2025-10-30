@@ -3,6 +3,7 @@ import { MmdManager } from "@display/modelManagers/MmdManager";
 import { VroidManager } from "@display/modelManagers/VroidManager";
 import { SpineManager } from "@display/modelManagers/SpineManager";
 import { SpineManager42 } from "@display/modelManagers/SpineManager42";
+import { SourceEngineManager } from "@display/modelManagers/SourceEngineManager";
 import { RecordManager } from "@display/utils/record/RecordManager";
 
 export class Application {
@@ -61,6 +62,7 @@ export class Application {
     this.modelManagers.VRoid = new VroidManager(this);
     this.modelManagers.Spine = new SpineManager(this);
     this.modelManagers.Spine42 = new SpineManager42(this);
+    this.modelManagers.SourceEngine = new SourceEngineManager(this);
   }
   handleIpcMessages() {
     this.nodeAPI.ipc.handleLoadModel((event, modelInfo) => {

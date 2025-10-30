@@ -42,6 +42,34 @@ This document outlines all the 3D and 2D model formats supported by Hime Display
   - Morph targets
   - Standard Three.js rendering pipeline
 
+### Source Engine Models (.mdl)
+- **Description**: Source Engine model format used in games like Left 4 Dead 2, Half-Life 2, Team Fortress 2, etc.
+- **Loader**: source-mdl parser
+- **Manager**: SourceEngineManager
+- **Required Files**:
+  - `.mdl` - Model definition and bones
+  - `.vtx` - Mesh vertex data
+  - `.vvd` - Vertex data
+  - `.vmt` - Material definitions (optional)
+  - `.vtf` - Texture files (optional)
+- **Features**:
+  - Animation sequence playback
+  - Bodygroup control (different model parts/variations)
+  - Skin/texture variant switching
+  - Mouse tracking (head follows cursor)
+  - Configurable animation speed and looping
+  - Full API support for programmatic control
+- **Limitations**:
+  - Bone animation parsing is basic (under development)
+  - Physics simulation not yet supported
+  - Some advanced Source Engine features may not be fully supported
+- **Common Use Cases**:
+  - Left 4 Dead 2 character models (Survivors, Infected)
+  - Half-Life 2 characters and props
+  - Team Fortress 2 characters
+  - Portal characters
+  - Counter-Strike: Source models
+
 ## 2D Model Formats
 
 ### Live2D Models
@@ -82,6 +110,7 @@ The following formats are **NOT** currently supported:
 - **For MikuMikuDance content**: Use PMX/PMD format (.pmx, .pmd)
 - **For general 3D models**: Use glTF/GLB format (.gltf, .glb)
 - **For 2D animated characters**: Use Live2D or Spine formats
+- **For Source Engine game characters**: Use MDL format (.mdl with .vtx and .vvd)
 
 ## Technical Details
 

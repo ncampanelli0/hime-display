@@ -520,6 +520,147 @@ async def call_tool(name: str, arguments: dict):
 5. **Context-Aware Animations**: Play different motion groups based on conversation context
 6. **Performance**: Use WebSocket for real-time control instead of HTTP for lower latency
 
+## Source Engine (MDL) Model Commands
+
+For Source Engine models (like Left 4 Dead 2 characters), use these specific commands:
+
+### Play Animation Sequence
+```json
+{
+  "action": "playSequence",
+  "data": {
+    "sequenceIndex": 0
+  }
+}
+```
+
+Or by name:
+```json
+{
+  "action": "playSequence",
+  "data": {
+    "sequenceName": "idle01"
+  }
+}
+```
+
+Common L4D2 sequences:
+- `idle01`, `idle02` - Idle animations
+- `walk_all` - Walking animation
+- `run_all` - Running animation
+- `crouch_idle` - Crouching idle
+- `jump` - Jumping animation
+- `shoot` - Shooting animation
+
+### Stop Sequence
+```json
+{
+  "action": "stopSequence",
+  "data": {}
+}
+```
+
+### Set Bodygroup
+Change model parts (e.g., different weapons, accessories):
+```json
+{
+  "action": "setBodyGroup",
+  "data": {
+    "bodyGroupIndex": 0,
+    "value": 1
+  }
+}
+```
+
+### Set Skin
+Change texture variant:
+```json
+{
+  "action": "setSkin",
+  "data": {
+    "skinIndex": 0
+  }
+}
+```
+
+### Set Sequence Speed
+Control animation playback speed:
+```json
+{
+  "action": "setSequenceSpeed",
+  "data": {
+    "speed": 1.5
+  }
+}
+```
+Values: `0.5` = half speed, `1.0` = normal, `2.0` = double speed
+
+### Set Sequence Loop
+```json
+{
+  "action": "setSequenceLoop",
+  "data": {
+    "loop": true
+  }
+}
+```
+
+### Example: Left 4 Dead 2 Character Control
+
+```python
+import asyncio
+import aiohttp
+
+async def control_l4d2_character():
+    async with aiohttp.ClientSession() as session:
+        # Load a L4D2 survivor model
+        await session.post(
+            "http://localhost:8766",
+            json={
+                "action": "loadModel",
+                "data": {
+                    "name": "Bill",
+                    "modelType": "SourceEngine",
+                    "entranceFile": "path/to/survivor_namvet.mdl"
+                }
+            }
+        )
+        
+        # Wait a moment for model to load
+        await asyncio.sleep(1)
+        
+        # Play idle animation
+        await session.post(
+            "http://localhost:8766",
+            json={
+                "action": "playSequence",
+                "data": {"sequenceName": "idle01"}
+            }
+        )
+        
+        # Wait 3 seconds
+        await asyncio.sleep(3)
+        
+        # Switch to running animation at 1.5x speed
+        await session.post(
+            "http://localhost:8766",
+            json={
+                "action": "setSequenceSpeed",
+                "data": {"speed": 1.5}
+            }
+        )
+        
+        await session.post(
+            "http://localhost:8766",
+            json={
+                "action": "playSequence",
+                "data": {"sequenceName": "run_all"}
+            }
+        )
+
+asyncio.run(control_l4d2_character())
+```
+
 ## Troubleshooting
 
 - **Connection Refused**: Make sure Hime Display is running and API is enabled in config
