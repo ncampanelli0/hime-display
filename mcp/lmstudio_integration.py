@@ -52,7 +52,7 @@ class LMStudioClient:
             "model": "local-model",  # LM Studio uses this for loaded model
             "messages": messages,
             "temperature": 0.7,
-            "max_tokens": 500,
+            "max_tokens": 4000,  # Increased to allow longer responses
             "stream": False
         }
         
@@ -80,7 +80,7 @@ class LMStudioClient:
             "model": "local-model",
             "messages": messages,
             "temperature": 0.7,
-            "max_tokens": 500,
+            "max_tokens": 2000,  # Increased to allow longer responses
             "stream": True
         }
         
