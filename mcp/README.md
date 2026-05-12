@@ -26,6 +26,19 @@ Model Context Protocol (MCP) is an open protocol that enables AI assistants to s
 
 ### Step 1: Install Python Dependencies
 
+#### Option A: Using uv (Recommended)
+
+[uv](https://docs.astral.sh/uv/) manages dependencies automatically — no manual `pip install` needed.
+
+```powershell
+# Install uv if you don't have it
+pip install uv
+```
+
+The server uses inline script metadata (PEP 723), so `uv run` will install all dependencies automatically on first run.
+
+#### Option B: Using pip
+
 ```powershell
 pip install mcp websockets aiohttp
 ```
@@ -44,7 +57,23 @@ Make sure the API is enabled in Hime Display settings. Default configuration:
 4. Choose **Custom Server**
 5. Use one of the configuration methods below:
 
-#### Option A: Direct Python Script (Recommended)
+#### Option A: Using uv (Recommended)
+
+Add this configuration to your LM Studio MCP servers:
+
+```json
+{
+  "hime-display": {
+    "command": "uv",
+    "args": ["run", "C:\\path\\to\\hime-display\\mcp\\server.py"],
+    "env": {}
+  }
+}
+```
+
+`uv run` will automatically install dependencies on first launch.
+
+#### Option B: Direct Python Script
 
 Add this configuration to your LM Studio MCP servers:
 
@@ -52,7 +81,7 @@ Add this configuration to your LM Studio MCP servers:
 {
   "hime-display": {
     "command": "python",
-    "args": ["E:\\programmingfiles\\javascript\\himedisplay\\hime-display\\mcp\\server.py"],
+    "args": ["C:\\path\\to\\hime-display\\mcp\\server.py"],
     "env": {}
   }
 }
@@ -60,7 +89,7 @@ Add this configuration to your LM Studio MCP servers:
 
 **Note:** Update the path to match your actual installation directory.
 
-#### Option B: Using Node.js Wrapper
+#### Option C: Using Node.js Wrapper
 
 If you prefer Node.js:
 
@@ -68,7 +97,7 @@ If you prefer Node.js:
 {
   "hime-display": {
     "command": "node",
-    "args": ["E:\\programmingfiles\\javascript\\himedisplay\\hime-display\\mcp\\server.js"],
+    "args": ["C:\\path\\to\\hime-display\\mcp\\server.js"],
     "env": {}
   }
 }

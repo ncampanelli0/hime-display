@@ -1,3 +1,12 @@
+# /// script
+# requires-python = ">=3.8"
+# dependencies = [
+#   "mcp>=0.9.0",
+#   "websockets>=12.0",
+#   "aiohttp>=3.9.0",
+# ]
+# ///
+
 """
 Hime Display MCP Server for LM Studio
 Model Context Protocol server for controlling Live2D characters
