@@ -217,6 +217,218 @@ async def list_tools() -> list[Tool]:
                 },
                 "required": ["action"]
             }
+        ),
+        Tool(
+            name="stop_animation",
+            description="Stop the currently playing animation/motion on the character.",
+            inputSchema={"type": "object", "properties": {}}
+        ),
+        Tool(
+            name="set_expression",
+            description="Set a named expression on the Live2D model. Expressions are predefined in the model file (e.g., 'f01', 'f02', 'happy', 'angry'). Use get_model_info to see available expressions.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "expression": {
+                        "type": "string",
+                        "description": "Expression name or ID as defined in the model's expression list"
+                    }
+                },
+                "required": ["expression"]
+            }
+        ),
+        Tool(
+            name="set_parameters",
+            description="Set multiple Live2D parameters at once in a single call. More efficient than calling set_parameter repeatedly. Use for coordinated multi-parameter changes.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "parameters": {
+                        "type": "array",
+                        "description": "List of parameter objects to set simultaneously",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "parameter_id": {"type": "string", "description": "Parameter ID (e.g., ParamAngleX)"},
+                                "value": {"type": "number", "description": "Parameter value"}
+                            },
+                            "required": ["parameter_id", "value"]
+                        }
+                    }
+                },
+                "required": ["parameters"]
+            }
+        ),
+        Tool(
+            name="set_part",
+            description="Control the visibility/opacity of a model part such as clothing, accessories, or hair. Value 1.0 = fully visible, 0.0 = hidden.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "part_id": {
+                        "type": "string",
+                        "description": "Part ID as defined in the model (e.g., 'PartAccessory', 'PartHat', 'PartClothes')"
+                    },
+                    "value": {
+                        "type": "number",
+                        "description": "Opacity from 0.0 (hidden) to 1.0 (fully visible)",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                    }
+                },
+                "required": ["part_id", "value"]
+            }
+        ),
+        Tool(
+            name="set_parts",
+            description="Control the visibility/opacity of multiple model parts at once (clothing, accessories, etc.).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "parts": {
+                        "type": "array",
+                        "description": "List of part objects to update simultaneously",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "part_id": {"type": "string", "description": "Part ID"},
+                                "value": {"type": "number", "description": "Opacity 0.0 to 1.0"}
+                            },
+                            "required": ["part_id", "value"]
+                        }
+                    }
+                },
+                "required": ["parts"]
+            }
+        ),
+        Tool(
+            name="set_focus",
+            description="Set the character's focus/gaze direction using the native focus system. Overrides mouse tracking. Coordinates are normalized -1.0 to 1.0.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "x": {
+                        "type": "number",
+                        "description": "Horizontal focus: -1.0 (left) to 1.0 (right)",
+                        "minimum": -1.0,
+                        "maximum": 1.0
+                    },
+                    "y": {
+                        "type": "number",
+                        "description": "Vertical focus: -1.0 (down) to 1.0 (up)",
+                        "minimum": -1.0,
+                        "maximum": 1.0
+                    }
+                },
+                "required": ["x", "y"]
+            }
+        ),
+        Tool(
+            name="load_model",
+            description="Load a different model into the display. The model must already exist in the Hime Display model database.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "model_name": {
+                        "type": "string",
+                        "description": "Name of the model to load as it appears in the Hime Display database"
+                    }
+                },
+                "required": ["model_name"]
+            }
+        ),
+        Tool(
+            name="get_model_info",
+            description="Query the current model's state and available parameters, expressions, and motions. Use this to discover what controls are available for the loaded model.",
+            inputSchema={"type": "object", "properties": {}}
+        ),
+        Tool(
+            name="mdl_play_sequence",
+            description="Play an animation sequence on a Source Engine (MDL) model. Use sequenceName (e.g., 'idle', 'walk', 'run', 'attack') or sequenceIndex.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "sequence_name": {
+                        "type": "string",
+                        "description": "Animation sequence name (e.g., 'idle', 'walk', 'run', 'attack', 'reload')"
+                    },
+                    "sequence_index": {
+                        "type": "integer",
+                        "description": "Animation sequence index (use instead of name if name is unknown)",
+                        "minimum": 0
+                    }
+                }
+            }
+        ),
+        Tool(
+            name="mdl_stop_sequence",
+            description="Stop the currently playing animation sequence on a Source Engine (MDL) model.",
+            inputSchema={"type": "object", "properties": {}}
+        ),
+        Tool(
+            name="mdl_set_bodygroup",
+            description="Set a bodygroup value on a Source Engine (MDL) model to switch between mesh variants (e.g., different weapons, clothing options).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "bodygroup_index": {
+                        "type": "integer",
+                        "description": "Index of the bodygroup to change",
+                        "minimum": 0
+                    },
+                    "value": {
+                        "type": "integer",
+                        "description": "Value/variant to set for this bodygroup (0 = default)",
+                        "minimum": 0
+                    }
+                },
+                "required": ["bodygroup_index", "value"]
+            }
+        ),
+        Tool(
+            name="mdl_set_skin",
+            description="Set the skin/texture variant on a Source Engine (MDL) model.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "skin_index": {
+                        "type": "integer",
+                        "description": "Index of the skin/texture variant to apply (0 = default)",
+                        "minimum": 0
+                    }
+                },
+                "required": ["skin_index"]
+            }
+        ),
+        Tool(
+            name="mdl_set_sequence_speed",
+            description="Set the playback speed multiplier for animation sequences on a Source Engine (MDL) model.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "speed": {
+                        "type": "number",
+                        "description": "Speed multiplier: 1.0 = normal, 0.5 = half speed, 2.0 = double speed",
+                        "minimum": 0.1,
+                        "maximum": 10.0
+                    }
+                },
+                "required": ["speed"]
+            }
+        ),
+        Tool(
+            name="mdl_set_sequence_loop",
+            description="Set whether the current animation sequence loops on a Source Engine (MDL) model.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "loop": {
+                        "type": "boolean",
+                        "description": "True to loop the animation, false to play once"
+                    }
+                },
+                "required": ["loop"]
+            }
         )
     ]
 
@@ -417,7 +629,96 @@ async def call_tool(name: str, arguments: Any) -> Sequence[TextContent | Embedde
             else:
                 await display.send_command("hideDisplay", {})
                 return [TextContent(type="text", text="✓ Display window hidden")]
-        
+
+        elif name == "stop_animation":
+            await display.send_command("stopMotion", {})
+            return [TextContent(type="text", text="✓ Animation stopped")]
+
+        elif name == "set_expression":
+            expression = arguments["expression"]
+            await display.send_command("setExpression", {"expression": expression})
+            return [TextContent(type="text", text=f"✓ Set expression to '{expression}'")]
+
+        elif name == "set_parameters":
+            params = arguments["parameters"]
+            await display.send_command("setParameters", {
+                "parameters": [
+                    {"parameterId": p["parameter_id"], "value": p["value"]}
+                    for p in params
+                ]
+            })
+            return [TextContent(type="text", text=f"✓ Set {len(params)} parameters")]
+
+        elif name == "set_part":
+            part_id = arguments["part_id"]
+            value = arguments["value"]
+            await display.send_command("setPart", {"partId": part_id, "value": value})
+            return [TextContent(type="text", text=f"✓ Set part '{part_id}' to {value}")]
+
+        elif name == "set_parts":
+            parts = arguments["parts"]
+            await display.send_command("setParts", {
+                "parts": [
+                    {"partId": p["part_id"], "value": p["value"]}
+                    for p in parts
+                ]
+            })
+            return [TextContent(type="text", text=f"✓ Set {len(parts)} parts")]
+
+        elif name == "set_focus":
+            x = arguments["x"]
+            y = arguments["y"]
+            await display.send_command("setFocus", {"x": x, "y": y})
+            return [TextContent(type="text", text=f"✓ Focus set to ({x}, {y})")]
+
+        elif name == "load_model":
+            model_name = arguments["model_name"]
+            await display.send_command("loadModel", {"name": model_name})
+            return [TextContent(type="text", text=f"✓ Loading model '{model_name}'")]
+
+        elif name == "get_model_info":
+            result = await display.send_command("getModelInfo", {})
+            return [TextContent(type="text", text=f"Model info: {json.dumps(result, indent=2)}")]
+
+        elif name == "mdl_play_sequence":
+            data = {}
+            if "sequence_name" in arguments:
+                data["sequenceName"] = arguments["sequence_name"]
+            if "sequence_index" in arguments:
+                data["sequenceIndex"] = arguments["sequence_index"]
+            if not data:
+                return [TextContent(type="text", text="✗ Provide sequence_name or sequence_index")]
+            await display.send_command("playSequence", data)
+            label = arguments.get("sequence_name") or arguments.get("sequence_index")
+            return [TextContent(type="text", text=f"✓ Playing MDL sequence '{label}'")]
+
+        elif name == "mdl_stop_sequence":
+            await display.send_command("stopSequence", {})
+            return [TextContent(type="text", text="✓ MDL sequence stopped")]
+
+        elif name == "mdl_set_bodygroup":
+            await display.send_command("setBodyGroup", {
+                "bodyGroupIndex": arguments["bodygroup_index"],
+                "value": arguments["value"]
+            })
+            return [TextContent(
+                type="text",
+                text=f"✓ Set MDL bodygroup {arguments['bodygroup_index']} to {arguments['value']}"
+            )]
+
+        elif name == "mdl_set_skin":
+            await display.send_command("setSkin", {"skinIndex": arguments["skin_index"]})
+            return [TextContent(type="text", text=f"✓ Set MDL skin to index {arguments['skin_index']}")]
+
+        elif name == "mdl_set_sequence_speed":
+            await display.send_command("setSequenceSpeed", {"speed": arguments["speed"]})
+            return [TextContent(type="text", text=f"✓ Set MDL sequence speed to {arguments['speed']}x")]
+
+        elif name == "mdl_set_sequence_loop":
+            await display.send_command("setSequenceLoop", {"loop": arguments["loop"]})
+            state = "looping" if arguments["loop"] else "one-shot"
+            return [TextContent(type="text", text=f"✓ MDL sequence set to {state}")]
+
         else:
             return [TextContent(
                 type="text",
